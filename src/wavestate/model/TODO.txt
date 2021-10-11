@@ -1,0 +1,10 @@
+Need a way to protect and check parameters, like having limit sets for allowable parameters to prevent wrong-keys and case errors
+
+needs more error checking and good messages for missing objects
+
+YAML model loading
+
+validation of many parameter types (maybe a validator annotation in ParameterGraph/ParameterObject)
+
+allow single port bonds for photodiodes to activate outputs. Have port monitors
+check when a port is missing if it can be activated
