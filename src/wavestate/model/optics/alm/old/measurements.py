@@ -7,7 +7,7 @@ import sys
 
 #from pprint import pprint
 import declarative
-from declarative.bunch import DeepBunchSingleAssign
+from wavestate.bunch import DeepBunchSingleAssign
 
 from transient.utilities.future_from_2 import super, str
 from ..base import (
@@ -158,7 +158,7 @@ class Measurements(Element):
                     targets_by_tidx[ttype] = tidxmap
                 keylist = tidxmap.setdefault(tidx, [])
                 keylist.append(tname)
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             targets_by_type = targets_by_type,
             targets_by_tidx = targets_by_tidx,
         )
@@ -348,7 +348,7 @@ class Measurements(Element):
 
         z_targets = [(self.target_z(tidx), tname) for tname, tidx in list(funcmap_inv.items())]
         z_targets.sort()
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             tname = [tname for t_z, tname in z_targets],
             z = [t_z for t_z, tname in z_targets],
         )

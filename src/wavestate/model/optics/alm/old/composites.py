@@ -63,7 +63,7 @@ class PLCX(system.SystemStack):
 
     def lens_description(self, z, from_target):
         f_m = -1/self.matrix[1, 0]
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             f_m     = f_m,
             width_m = self.width_m * (-1 if from_target == TargetRight else 1),
             z       = z,
@@ -76,7 +76,7 @@ class PLCX(system.SystemStack):
     def detune_description(self, z, q_left):
         q_right = q_left.propagate_matrix(self.matrix)
         cplg02 = q_right.cplg02 - q_left.cplg02
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             cplg02   = cplg02,
             type    = 'lens',
             obj     = self,
@@ -132,7 +132,7 @@ class CXCX(system.SystemStack):
 
     def lens_description(self, z, from_target):
         f_m = -1/self.matrix[1, 0]
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             f_m = f_m,
             width_m = self.width_m * (-1 if from_target == TargetRight else 1),
             R1_m = self.R1_m.val,
@@ -150,7 +150,7 @@ class CXCX(system.SystemStack):
     def detune_description(self, z, q_left):
         q_right = q_left.propagate_matrix(self.matrix)
         cplg02 = q_right.cplg02 - q_left.cplg02
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             cplg02   = cplg02,
             type    = 'lens',
             q       = q_left,
@@ -219,7 +219,7 @@ class PLCXMirror(system.SystemStack):
 
     def mirror_description(self, z, from_target):
         f_m = -1/self.matrix[1, 0]
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             f_m     = f_m,
             width_m = self.width_m * (-1 if from_target == TargetRight else 1),
             z       = z,
@@ -232,7 +232,7 @@ class PLCXMirror(system.SystemStack):
     def detune_description(self, z, q_left):
         q_right = q_left.propagate_matrix(self.matrix)
         cplg02 = q_right.cplg02 + q_left.cplg02
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             cplg02   = cplg02,
             type    = 'mirror',
             q       = q_left,

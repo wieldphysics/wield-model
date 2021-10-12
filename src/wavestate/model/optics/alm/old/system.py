@@ -217,7 +217,7 @@ class System(
                 )
             pos_list.append(loc_m)
             pos_list = np.asarray(pos_list) - pos_list[0]
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 positions   = pos_list,
                 filled      = components_filled,
                 components_pos = components_pos,
@@ -483,7 +483,7 @@ class SystemStack(System):
                     loc_m += comp.width_m
                 pos_list.append(loc_m)
                 pos_list = np.asarray(pos_list) - pos_list[0]
-                return declarative.Bunch(
+                return wavestate.bunch.Bunch(
                     positions   = pos_list,
                     filled      = components_filled,
                     components_pos = components_pos,

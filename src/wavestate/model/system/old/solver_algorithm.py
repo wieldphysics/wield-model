@@ -79,7 +79,7 @@ class SystemSolver(object):
         #each index stores a dict, indexed by the output set
         self.driven_solution_bunches = [
             dict(
-                perturbative = declarative.Bunch(
+                perturbative = wavestate.bunch.Bunch(
                     solution    = dict(),
                     source      = dict(),
                     delta_v     = float('inf'),
@@ -386,7 +386,7 @@ class SystemSolver(object):
             solution_vector_prev,
             solution_vector_kv,
         )
-        solution_bunch = declarative.Bunch(
+        solution_bunch = wavestate.bunch.Bunch(
             source      = source_vector,
             solution    = solution_vector_kv,
             delta_v     = delta_v,
@@ -522,7 +522,7 @@ class SystemSolver(object):
             else:
                 solution_vector_kv[node] = 0
 
-        solution_bunch = declarative.Bunch(
+        solution_bunch = wavestate.bunch.Bunch(
             source   = source_vector,
             solution = solution_vector_kv,
         )
@@ -591,7 +591,7 @@ class SystemSolver(object):
             **kwargs
         )
 
-        solution_bunch = declarative.Bunch(
+        solution_bunch = wavestate.bunch.Bunch(
             inputs_set          = inputs_set,
             outputs_set         = outputs_set,
             seq                 = inverse_bunch.seq,

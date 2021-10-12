@@ -28,7 +28,7 @@ class BeamTargetBase(bases.NoP):
 
     def target_description(self, z):
         beam_q = self.beam_q
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             z = z,
             q = beam_q,
             type = 'target',

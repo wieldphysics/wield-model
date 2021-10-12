@@ -461,7 +461,7 @@ class MatrixBuildAlgorithm(object):
                 seq_perturb
             )
 
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             inputs_set = inputs_set,
             outputs_set = outputs_set,
             order = solution_min_order,

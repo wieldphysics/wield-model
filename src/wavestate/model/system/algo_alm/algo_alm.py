@@ -148,7 +148,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             qX = qX.propagate_matrix(np.linalg.inv(Mx))
             qY = qY.propagate_matrix(np.linalg.inv(My))
         target_oP = self.pbg.referred_vtup(target_name)
-        self._targets[target_oP] = declarative.Bunch(
+        self._targets[target_oP] = wavestate.bunch.Bunch(
             ol      = oLp_path[0],
             oLp_path  = oLp_path,
             oltrans = trans,
@@ -212,7 +212,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             raise RuntimeError("Cavity {} is not stable".format(target_name))
         qX = alm.ComplexBeamParam(qX, wavelength_m = self.fs.wavelength_map[Wk])
         qY = alm.ComplexBeamParam(qY, wavelength_m = self.fs.wavelength_map[Wk])
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             qX = qX,
             qY = qY,
             Wk = Wk,
@@ -228,7 +228,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         target_oP = self.pbg.referred_vtup(target)
         cavB = self.cavity_targets.get(target_oP, None)
         if cavB is not None:
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 oLp_set  = cavB,
                 target = target,
                 Wk     = Wk,
@@ -236,7 +236,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             )
         else:
             targB = self._targets[target_oP]
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 oLp_set  = [targB.ol],
                 target = target,
                 Wk     = Wk,
@@ -265,7 +265,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             wp = self.bg.rAp2oLp_set(waypoint, obj = obj, dir = 'out').pop()
         params = self._cavity_params(cavity_name, wp, Wk = Wk)
 
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             qX = params.qX,
             qY = params.qY,
             gouyX_deg = np.angle(params.qX.propagate_matrix(params.matX).gouy_phasor / params.qX.gouy_phasor, deg = True),
@@ -376,7 +376,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             #these should be included in the code below, rather than special-cased here
             if target_fr is not None:
                 tspecB_fr = self._target_get(target_fr, Wk = Wk)
-                frB = declarative.Bunch()
+                frB = wavestate.bunch.Bunch()
                 targetsB_fr[target_fr] = frB
                 frB.tspecB = tspecB_fr
                 oLp_set_seq.append(tspecB_fr.oLp_set)
@@ -390,7 +390,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             #these should be included in the code below, rather than special-cased here
             if target_to is not None:
                 tspecB_to = self._target_get(target_to, Wk = Wk)
-                toB = declarative.Bunch()
+                toB = wavestate.bunch.Bunch()
                 targetsB_to[target_to] = toB
                 toB.tspecB = tspecB_to
 
@@ -439,7 +439,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                 inv_start = False
 
             tspecB_fr = self._target_get(t_fr, Wk = Wk)
-            frB = declarative.Bunch()
+            frB = wavestate.bunch.Bunch()
             targetsB_fr[t_fr] = frB
             frB.tspecB = tspecB_fr
             frB.oLp_path = oLp_path_fr
@@ -470,7 +470,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                 inv_start = True
 
             tspecB_to = self._target_get(t_to, Wk = Wk)
-            toB = declarative.Bunch()
+            toB = wavestate.bunch.Bunch()
             targetsB_to[t_to] = toB
             toB.tspecB = tspecB_to
             toB.oLp_path = oLp_path_to

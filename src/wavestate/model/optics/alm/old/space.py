@@ -123,7 +123,7 @@ class Space(bases.MatrixAtsBase, declarative.OverridableObject):
             if qZ > -1e-16 and qZ < self.L_m.val:
                 has_waist = True
         if has_waist:
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 z = zw,
                 ZR = q.ZR,
                 str = u'waist ZR = {0}, W = {1}'.format(str_m(q.ZR, 2), str_m(q.W0, 2)),

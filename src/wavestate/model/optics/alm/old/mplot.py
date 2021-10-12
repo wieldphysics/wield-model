@@ -220,7 +220,7 @@ class MPlotter(declarative.OverridableObject):
 
         if fname is not None:
             fB.save(fname)
-        return declarative.Bunch(locals())
+        return wavestate.bunch.Bunch(locals())
 
     def annotate(
             self,

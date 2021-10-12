@@ -23,7 +23,7 @@ def units_map(
             else:
                 uobj = to
         umap[name] = uobj
-    return declarative.Bunch(
+    return wavestate.bunch.Bunch(
         principle_name = principle,
         principle_unit = umap[principle],
         umap           = umap,

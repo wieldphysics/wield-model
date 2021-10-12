@@ -34,7 +34,7 @@ class MountBase(
         return self.subsystem.width_m
 
     def mount_desc_dfunct(self, z, q, from_target):
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             q = q,
             gouy_phasor = q.gouy_phasor,
             z = z,

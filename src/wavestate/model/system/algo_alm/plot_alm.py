@@ -316,7 +316,7 @@ class OverlapperPlotter(declarative.OverridableObject):
 
         if fname is not None:
             axB.save(fname)
-        return declarative.Bunch(locals())
+        return wavestate.bunch.Bunch(locals())
 
     def annotate(
         self,
@@ -417,7 +417,7 @@ class OverlapperPlotter(declarative.OverridableObject):
 
             desc = desc_format(z_m, d.get('name'), d.get('desc'), d.get('L_m', 0), False)
 
-            return declarative.Bunch(locals())
+            return wavestate.bunch.Bunch(locals())
 
         for idx, d in enumerate(reversed(left_list)):
             d = ready_desc(d)
@@ -658,7 +658,7 @@ class OverlapperPlotter(declarative.OverridableObject):
         pbg = pbg_orig.copy()
 
         for scanD in scans:
-            scanD = declarative.Bunch(scanD)
+            scanD = wavestate.bunch.Bunch(scanD)
             num = scanD.get('num', 1)
             val_abs = scanD.get('values', None)
             val_rel = scanD.get('values_rel', None)
@@ -832,7 +832,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                         ls = '--',
                         lw = .5,
                     )
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 color = color,
                 line1 = line1,
                 line2 = line2,
@@ -993,12 +993,12 @@ class OverlapperPlotter(declarative.OverridableObject):
 
         if fname is not None:
             axB.save(fname)
-        handlesB = declarative.Bunch()
+        handlesB = wavestate.bunch.Bunch()
         handlesB.B1  = pointsB1
         handlesB.B2  = pointsB2
         handlesB.B12 = pointsB12
         if axB is None:
-            axB = declarative.Bunch()
+            axB = wavestate.bunch.Bunch()
         axB.handlesB = handlesB
 
         if target_handles is not None:
@@ -1161,7 +1161,7 @@ def data_minmax(
         xmin, xmax = _xmin, _xmax
     if rmax is not None:
         rmax = spanscale * rmax
-    return declarative.Bunch(
+    return wavestate.bunch.Bunch(
         xmin = xmin,
         xmax = xmax,
         ymin = ymin,

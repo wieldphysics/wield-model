@@ -106,7 +106,7 @@ class PhysicsAlgorithm(object):
         return self._ga
 
     def _setup_optical(self):
-        optical_settings = declarative.Bunch(
+        optical_settings = wavestate.bunch.Bunch(
             polarization    = True,
             quantum         = 'pm',
             transverse      = None,

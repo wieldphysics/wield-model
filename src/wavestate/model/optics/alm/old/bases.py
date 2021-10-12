@@ -220,7 +220,7 @@ class ThinLens(ThinBase):
         return mat
 
     def lens_description(self, z, from_target):
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             f_m = self.f_m.val,
             z = z,
             type = 'lens',
@@ -231,7 +231,7 @@ class ThinLens(ThinBase):
     def detune_description(self, z, q_left):
         q_right = q_left.propagate_matrix(self.matrix)
         cplg02 = q_right.cplg02 - q_left.cplg02
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             cplg02   = cplg02,
             type    = 'lens',
             q       = q_left,
@@ -330,7 +330,7 @@ class Mirror(ThinBase):
     def mirror_description(self, z, from_target):
         if self.R_m.val is not None:
             f_m = -1/self.matrix[1, 0]
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 R_m = self.R_m.val,
                 f_m = f_m,
                 z = z,
@@ -339,7 +339,7 @@ class Mirror(ThinBase):
                 str = 'Mirror, R_m = {R_m}, f_m = {f_m}'.format(R_m = str_m(self.R_m.val), f_m = str_m(f_m)),
             )
         else:
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 R_m = self.R_m.val,
                 z = z,
                 type = 'mirror',
@@ -350,7 +350,7 @@ class Mirror(ThinBase):
     def detune_description(self, z, q_left):
         q_right = q_left.propagate_matrix(self.matrix)
         cplg02 = q_right.cplg02 + q_left.cplg02
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             cplg02   = cplg02,
             type    = 'mirror',
             q       = q_left,

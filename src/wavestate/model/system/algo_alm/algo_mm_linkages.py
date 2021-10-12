@@ -161,7 +161,7 @@ class ModeMatchingLinkageAlgorithm(object):
 
         #gives shortest path between the groups
         #remap through the name-mapping to use oLp
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             path_shortest      = shortest_path[::-1],
             weight_shortest    = weight_best,
             parents            = {k: v if v is not None else None for k, v in parents.items()},
@@ -184,7 +184,7 @@ class ModeMatchingLinkageAlgorithm(object):
                 prop_ol2idx = dict(),
                 inc_ol2idx  = dict(),
             )
-            return declarative.Bunch(
+            return wavestate.bunch.Bunch(
                 oLp_path     = oLp_path,
                 Wk           = Wk,
                 X            = Xtransporter,
@@ -289,7 +289,7 @@ class ModeMatchingLinkageAlgorithm(object):
                 inc_ol2idx  = Yinc_ol2idx,
             )
 
-        return declarative.Bunch(
+        return wavestate.bunch.Bunch(
             oLp_path     = oLp_path,
             Wk           = Wk,
             X            = Xtransporter,
