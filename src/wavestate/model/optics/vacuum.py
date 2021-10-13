@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
 import collections
 
-from transient import matrix
 from .. import base
+#from wavestate.model import matrix
 
 
 class Vacuum(base.OpticalObject):
@@ -20,7 +19,8 @@ class Vacuum(base.OpticalObject):
     @classmethod
     def visit_matrix_algorithm_DCAC(cls, manip):
         if manip.is_AC:
-            #TODO
+            raise NotImplementedError()
+            # TODO
             kmatrix = optical_quantum_noise_matrix(manip)
             manip.add_noise('A!o', kmatrix)
 
@@ -30,7 +30,7 @@ def optical_quantum_noise_matrix(manip):
     basis = manip.link_basis('A!o')
     assert(settings.quantum == 'pm')
 
-    #this is an array of the frequencies
+    # this is an array of the frequencies
     km = collections.defaultdict(dict)
     for Fk in basis['frequency'].enumerated:
         for Wk, iwval in manip.basis_wavenumbers(with_keys = True):

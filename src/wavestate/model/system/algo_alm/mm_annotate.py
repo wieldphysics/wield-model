@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
-import declarative
+from wavestate.bunch import Bunch
 from ... import optics
 from ...optics.alm.utils import (
     str_m,
@@ -38,7 +37,7 @@ def transporter2objects(algo_mm, q, transporter):
         if ol_fr[0] != ol_to[0]:
             #print(ol_fr, ol_to, idx_fr, idx_to)
             if idx == 0:
-                descB = wavestate.bunch.Bunch(
+                descB = Bunch(
                     z_m = 0,
                     L_m = 0,
                     z1_m = 0,
@@ -57,7 +56,7 @@ def transporter2objects(algo_mm, q, transporter):
                 z_m = transporter.inc_build_len[idx_fr]
                 mat1 = transporter.inc_build_mat[idx_fr]
                 q_end = q.propagate_matrix(mat1)
-                descB = wavestate.bunch.Bunch(
+                descB = Bunch(
                     z_m = z_m,
                     L_m = 0,
                     z1_m = z_m,
@@ -88,7 +87,7 @@ def transporter2objects(algo_mm, q, transporter):
             mat1 = transporter.inc_build_mat[idx_fr]
             mat2 = transporter.inc_build_mat[idx_to]
 
-        descB = wavestate.bunch.Bunch(
+        descB = Bunch(
             z_m = z1,
             z1_m = z1,
             z2_m = z2,
@@ -139,7 +138,7 @@ def annotate_tags(pbg, descriptions, tags):
             **q.str_kw()
         )
 
-        descriptions[insert] = [wavestate.bunch.Bunch(
+        descriptions[insert] = [Bunch(
             z_m     = z_m,
             z1_m    = z_m,
             z2_m    = z_m,
@@ -162,7 +161,7 @@ def annotate_waists(descriptions):
             if -desc.q_start.Z < desc.L_m and -desc.q_start.Z >= 0:
                 q_start = desc.q_start.propagate_distance(-desc.q_start.Z)
                 z_m = desc.z_m - desc.q_start.Z
-                descriptions2.append(wavestate.bunch.Bunch(
+                descriptions2.append(Bunch(
                     z_m = z_m,
                     z1_m = z_m,
                     z2_m = z_m,
@@ -202,7 +201,7 @@ def annotate_qspaces(descriptions, reverse = False):
             if reverse:
                 q_start = q_start.propagate_distance(L_m)
                 z_m = z_m + L_m
-            descriptions2.append(wavestate.bunch.Bunch(
+            descriptions2.append(Bunch(
                 z_m     = z_m,
                 z1_m    = z1_m,
                 z2_m    = z2_m,

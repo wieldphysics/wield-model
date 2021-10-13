@@ -3,7 +3,7 @@
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
 
-from transient.model import pgraph
+from wavestate.model import pgraph
 
 def test_obj_build():
     obj_sys = pgraph.ParameterObject()

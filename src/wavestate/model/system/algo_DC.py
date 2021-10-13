@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
 import collections
 import numpy as np
 from .. import base
-from .. import matrix
 from . import algo_phys
 
 

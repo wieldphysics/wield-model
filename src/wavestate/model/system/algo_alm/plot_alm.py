@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals
 import numpy as np
-#from matplotlib.ticker import MultipleLocator, AutoMinorLocator
 
 import collections
 import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 from matplotlib import legend_handler, lines
 from matplotlib.text import OffsetFrom
-import declarative
+from wavestate.bunch import Bunch
 
 from ...optics import alm
 from ...optics.alm.utils import (
     str_m,
 )
-from transient.utilities.mpl import mplfigB
+from wavestate.utilities.mpl import mplfigB
 
-from transient.utilities.mpl.stacked_plots import (
+from wavestate.utilities.mpl.stacked_plots import (
     generate_stacked_plot_ax,
 )
 
 
-class OverlapperPlotter(declarative.OverridableObject):
+class OverlapperPlotter(object):
     fname     = None
     Z         = None
     N_points  = 300
@@ -74,7 +72,7 @@ class OverlapperPlotter(declarative.OverridableObject):
         annotate_tags   = [],
         **kwargs
     ):
-        fname = declarative.first_non_none(fname, self.fname)
+        fname = first_non_none(fname, self.fname)
         anno_target = overlapper.annotation_target()
 
         if use_in:
@@ -88,9 +86,9 @@ class OverlapperPlotter(declarative.OverridableObject):
             if length_max_m is None and length_max_in is not None:
                 length_max_m = length_max_in * .0254
 
-        Z           = declarative.first_non_none(Z, self.Z)
-        padding_m   = declarative.first_non_none(padding_m, self.padding_m)
-        padding_rel = declarative.first_non_none(padding_rel, self.padding_rel)
+        Z           = first_non_none(Z, self.Z)
+        padding_m   = first_non_none(padding_m, self.padding_m)
+        padding_rel = first_non_none(padding_rel, self.padding_rel)
 
         if ref0 is not None:
             z0 = overlapper.object_z(ref0)
@@ -119,7 +117,7 @@ class OverlapperPlotter(declarative.OverridableObject):
             idx_pad_L = np.searchsorted(Z, 0)
             idx_pad_R = np.searchsorted(Z, float(overlapper.length_m))
 
-        #axB = mplfigB(Nrows = 3)
+        # axB = mplfigB(Nrows = 3)
         if axB is None:
             axB = generate_stacked_plot_ax(
                 name_use_list = [
@@ -138,10 +136,10 @@ class OverlapperPlotter(declarative.OverridableObject):
         last_phase_X = 0
         last_phase_Y = 0
         last_zsub = 0
-        #print(overlapper.target_list())
+        # print(overlapper.target_list())
         for tname in overlapper.target_list():
             z_sub = Z
-            #if not full_beams:
+            # if not full_beams:
             #    if idx > 0:
             #        z_from = beam_zs[idx - 1]
             #        z_sub = z_sub[z_sub > z_from]
@@ -238,14 +236,14 @@ class OverlapperPlotter(declarative.OverridableObject):
                 tags = annotate_tags,
             )
 
-            #cull the descriptions that extend past the plot
+            # cull the descriptions that extend past the plot
             descriptions2 = []
             for desc in descriptions:
                 if desc.z1_m > length_max_m:
                     continue
                 descriptions2.append(desc)
             descriptions = descriptions2
-            #for tscname, tscfunc in transcribers.items():
+            # for tscname, tscfunc in transcribers.items():
             #    descriptions.update(tscfunc(overlapper.trans_center))
             self.annotate(
                 axB = axB,
@@ -257,8 +255,8 @@ class OverlapperPlotter(declarative.OverridableObject):
                 **kwargs
             )
 
-            #for debugging
-            #for descB in descriptions:
+            # for debugging
+            # for descB in descriptions:
             #    axB.width.scatter(z_map(descB.z1_m), 1e3 * 2 * descB.q_start.W)
             #    axB.width.scatter(z_map(descB.z1_m), 1e3 * 2 * descB.q_start.W)
 
@@ -273,7 +271,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                 yd = line.get_ydata()
                 idx_pad_L = np.searchsorted(xd, xmin)
                 idx_pad_R = np.searchsorted(xd, xmax)
-                #only include if the line was in data coordinates
+                # only include if the line was in data coordinates
                 if line.get_transform().contains_branch(ax.transData) and (idx_pad_R > idx_pad_L):
                     all_y.append(yd[idx_pad_L : idx_pad_R])
                     lmax = max(lmax, np.nanmax(yd[idx_pad_L : idx_pad_R]))
@@ -295,8 +293,8 @@ class OverlapperPlotter(declarative.OverridableObject):
             axB.width.set_ylim(0, 1.1*limits_between(axB.width, xmin, xmax)[1])
             low, high = limits_between(axB.iROC, xmin, xmax, spanscale_low = 1.05, spanscale_high = 1.05)
             axB.iROC.set_ylim(low, high)
-            #low, high = limits_between(axB.Gouy, xmin, xmax, spanscale_low = 1.05, spanscale_high = 1.05)
-            #axB.Gouy.set_ylim(low, high)
+            # low, high = limits_between(axB.Gouy, xmin, xmax, spanscale_low = 1.05, spanscale_high = 1.05)
+            # axB.Gouy.set_ylim(low, high)
 
         axB.finalize()
         axB.ax_bottom.minorticks_on()
@@ -316,7 +314,7 @@ class OverlapperPlotter(declarative.OverridableObject):
 
         if fname is not None:
             axB.save(fname)
-        return wavestate.bunch.Bunch(locals())
+        return Bunch(locals())
 
     def annotate(
         self,
@@ -417,11 +415,11 @@ class OverlapperPlotter(declarative.OverridableObject):
 
             desc = desc_format(z_m, d.get('name'), d.get('desc'), d.get('L_m', 0), False)
 
-            return wavestate.bunch.Bunch(locals())
+            return Bunch(locals())
 
         for idx, d in enumerate(reversed(left_list)):
             d = ready_desc(d)
-            #top elements
+            # top elements
             arrowkw = dict(self.arrow_args)
             arrowkw.update(d.anno_kw)
             axB.ax_top.annotate(
@@ -432,7 +430,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                 bbox = self.bbox_args,
                 arrowprops = arrowkw,
             )
-            #axB.ax_top.annotate(
+            # axB.ax_top.annotate(
             #    desc,
             #    #'',
             #    xy=(0.0, 2), xytext=(0.0, 2),
@@ -467,7 +465,7 @@ class OverlapperPlotter(declarative.OverridableObject):
 
         for idx, d in enumerate(right_list):
             d = ready_desc(d)
-            #bottom elements
+            # bottom elements
             arrowkw = dict(self.arrow_args)
             arrowkw.update(d.anno_kw)
             axB.ax_top.annotate(
@@ -478,8 +476,8 @@ class OverlapperPlotter(declarative.OverridableObject):
                 bbox=self.bbox_args,
                 arrowprops = arrowkw,
             )
-            #axB.ax_top.annotate(
-            #    '',#desc,
+            # axB.ax_top.annotate(
+            #    '',# desc,
             #    xy=(0.0, 2),
             #    xytext=(0.0, 2),
             #    textcoords=OffsetFrom(an, (0, 0), "points"),
@@ -537,7 +535,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                 if target_handles is None:
                     target_handles = axB.target_handles
 
-            #assign in axB to fill it with the points definitions
+            # assign in axB to fill it with the points definitions
             P1B = self.plot_scan(
                 overlapper = overlapper,
                 axB = axB,
@@ -555,15 +553,15 @@ class OverlapperPlotter(declarative.OverridableObject):
                 **kwargs,
             )
             ax = axB.ax1
-            #box = ax.get_position()
-            #ax.set_position([box.x0, box.y0 + box.height * 0.2,
+            # box = ax.get_position()
+            # ax.set_position([box.x0, box.y0 + box.height * 0.2,
             #                box.width, box.height * 0.8])
 
             # Put a legend below current axis
             if False and axB_orig is None:
                 ax.legend(loc='upper left', bbox_to_anchor=(0.0, -0.12), ncol = 2)
             else:
-                #TODO better legends
+                # TODO better legends
                 handles = []
                 labels = []
                 longest = 1
@@ -598,7 +596,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                     handlelength = longest * .8,
 
                 )
-            #axB.ax1.legend(framealpha = 1)
+            # axB.ax1.legend(framealpha = 1)
             return axB
         else:
             return self._plot_scan(
@@ -658,7 +656,7 @@ class OverlapperPlotter(declarative.OverridableObject):
         pbg = pbg_orig.copy()
 
         for scanD in scans:
-            scanD = wavestate.bunch.Bunch(scanD)
+            scanD = Bunch(scanD)
             num = scanD.get('num', 1)
             val_abs = scanD.get('values', None)
             val_rel = scanD.get('values_rel', None)
@@ -744,7 +742,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                         ls = '--',
                         label = label1,
                     )
-                    #clear label to prevent repeats in legend
+                    # clear label to prevent repeats in legend
                     label1 = None
                     line1 = path
                     path, = ax.plot(
@@ -775,7 +773,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                         lw = 1,
                         label = label1,
                     )
-                    #clear label to prevent repeats in legend
+                    # clear label to prevent repeats in legend
                     label1 = None
                     line1 = path
                     path, = ax.plot(
@@ -832,7 +830,7 @@ class OverlapperPlotter(declarative.OverridableObject):
                         ls = '--',
                         lw = .5,
                     )
-            return wavestate.bunch.Bunch(
+            return Bunch(
                 color = color,
                 line1 = line1,
                 line2 = line2,
@@ -890,10 +888,10 @@ class OverlapperPlotter(declarative.OverridableObject):
                     color = pointsB2.color
 
         if axLG is not None:
-            #olap_00X, olap_02X = qB.t1qX.overlap_LG_2mode(qB.t2qX)
-            #olap_00Y, olap_02Y = qB.t1qY.overlap_LG_2mode(qB.t2qY)
-            #olap_02 = olap_00Y*olap_02X + olap_00X*olap_02Y
-            #axLG.scatter(olap_02.real, olap_02.imag)
+            # olap_00X, olap_02X = qB.t1qX.overlap_LG_2mode(qB.t2qX)
+            # olap_00Y, olap_02Y = qB.t1qY.overlap_LG_2mode(qB.t2qY)
+            # olap_02 = olap_00Y*olap_02X + olap_00X*olap_02Y
+            # axLG.scatter(olap_02.real, olap_02.imag)
 
             if overlapper.target1 is not None and overlapper.target2:
                 if transverse == 'x':
@@ -993,12 +991,12 @@ class OverlapperPlotter(declarative.OverridableObject):
 
         if fname is not None:
             axB.save(fname)
-        handlesB = wavestate.bunch.Bunch()
+        handlesB = Bunch()
         handlesB.B1  = pointsB1
         handlesB.B2  = pointsB2
         handlesB.B12 = pointsB12
         if axB is None:
-            axB = wavestate.bunch.Bunch()
+            axB = Bunch()
         axB.handlesB = handlesB
 
         if target_handles is not None:
@@ -1122,7 +1120,7 @@ def data_minmax(
                 trans = line.get_transform()
             except AttributeError:
                 continue
-        #only include if the line was in data coordinates
+        # only include if the line was in data coordinates
         if trans.contains_branch(ax.transData):
             all_y.append(yd)
             ymax = max(ymax, np.nanmax(yd))
@@ -1161,7 +1159,7 @@ def data_minmax(
         xmin, xmax = _xmin, _xmax
     if rmax is not None:
         rmax = spanscale * rmax
-    return wavestate.bunch.Bunch(
+    return Bunch(
         xmin = xmin,
         xmax = xmax,
         ymin = ymin,
@@ -1206,3 +1204,9 @@ class HandlerLine2Dv(legend_handler.HandlerLine2D):
 
         return [legline, legline_marker]
 
+
+def first_non_none(*args):
+    for a in args:
+        if a is not None:
+            return a
+    return None

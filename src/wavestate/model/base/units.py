@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals
-from transient.utilities.future_from_2 import str
+from wavestate.bunch import Bunch
 from . import pint
-
-import declarative
 
 
 def units_map(
@@ -23,7 +20,7 @@ def units_map(
             else:
                 uobj = to
         umap[name] = uobj
-    return wavestate.bunch.Bunch(
+    return Bunch(
         principle_name = principle,
         principle_unit = umap[principle],
         umap           = umap,

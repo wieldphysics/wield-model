@@ -7,13 +7,13 @@ from __future__ import division, print_function, unicode_literals, absolute_impo
 from os import path
 
 
-from transient.model import optics
-from transient import model
-from transient.model.system import algo_phys
-from transient.model.system import algo_graphs
-from transient.model.system import algo_log
+from wavestate.model import optics
+from wavestate import model
+from wavestate.model.system import algo_phys
+from wavestate.model.system import algo_graphs
+from wavestate.model.system import algo_log
 
-from transient.pytest import (
+from wavestate.pytest import (
     tpath, ic, pprint
 )
 

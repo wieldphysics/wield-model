@@ -6,17 +6,17 @@ from os import path
 import numpy as np
 import pytest
 
-from transient.model import pgraph
-from transient.model import optics
-from transient.model import base
-from transient import model
-from transient.model.system import algo_bg
-from transient.model.system import algo_freq
-from transient.model.system import algo_phys
-from transient.model.system import algo_graphs
+from wavestate.model import pgraph
+from wavestate.model import optics
+from wavestate.model import base
+from wavestate import model
+from wavestate.model.system import algo_bg
+from wavestate.model.system import algo_freq
+from wavestate.model.system import algo_phys
+from wavestate.model.system import algo_graphs
 
-from transient.model.system import algo_log
-from transient.pytest import Timer
+from wavestate.model.system import algo_log
+from wavestate.pytest import Timer
 
 pytestmark = pytest.mark.xfail(reason = "all tests still WIP")
 
@@ -111,7 +111,7 @@ def test_fabry_perot_DC(tpath):
     )
     (seq, req, edges, inputs, outputs) = SREIO
 
-    from transient.matrix.SRE.semidense import SREkmatrix_inverse
+    from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
 
     SREkmatrix_inverse(
         seq, req, edges,
@@ -142,7 +142,7 @@ def test_fabry_perot_DC_matrix(tpath):
     #from icecream import ic
     #ic(edges)
 
-    from transient.matrix.SRE.semidense import SREkmatrix_inverse
+    from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
 
     nmap, SREIO = pa.dc.SREIO_DC(
         map_nodes = True,

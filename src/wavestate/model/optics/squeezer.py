@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
 import collections
 
-from transient import matrix
 from .. import base
 
 

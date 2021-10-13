@@ -3,10 +3,10 @@
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
 import numpy as np
-import declarative
 from .plot_alm import OverlapperPlotter
+from wavestate.bunch import Bunch
 from . import mm_annotate
-from transient.utilities.strings import table
+from wavestate.utilities.strings import table
 from ... import optics
 
 
@@ -42,7 +42,7 @@ class ModeMatchingOverlapper(object):
         self.trans_center = self.mm._path_transporters(self.oLp_path_center, Wk = Wk)
 
         def setup_refer_to_start(tB, direction):
-            tB_new = wavestate.bunch.Bunch()
+            tB_new = Bunch()
             if tB.inv_start:
                 tB_new.targB = self.mm._target_complete(tB.tspecB, ol = tB.oLp_path[-1])
             else:
@@ -109,14 +109,14 @@ class ModeMatchingOverlapper(object):
             self.target1 = target
             self.target2 = name
             frB = self.transB_fr[target]
-            toB_new = wavestate.bunch.Bunch()
+            toB_new = Bunch()
             #makes a null transfer
             toB_new.trans = self.mm._path_transporters([], Wk = self.Wk)
             qX = frB.qX.propagate_matrix(self.trans_center.X.full_trip_mat)
             qY = frB.qY.propagate_matrix(self.trans_center.Y.full_trip_mat)
             toB_new.qX = qX
             toB_new.qY = qY
-            toB_new.targB = wavestate.bunch.Bunch()
+            toB_new.targB = Bunch()
             toB_new.targB.type = 'specified'
             toB_new.targB.qX = qX
             toB_new.targB.qY = qY
@@ -126,14 +126,14 @@ class ModeMatchingOverlapper(object):
             toB = self.transB_to[target]
             self.target2 = target
             self.target1 = name
-            frB_new = wavestate.bunch.Bunch()
+            frB_new = Bunch()
             #makes a null transfer
             frB_new.trans = self.mm._path_transporters([], Wk = self.Wk)
             qX = toB.qX
             qY = toB.qY
             frB_new.qX = qX
             frB_new.qY = qY
-            frB_new.targB = wavestate.bunch.Bunch()
+            frB_new.targB = Bunch()
             frB_new.targB.type = 'specified'
             frB_new.targB.qX = qX
             frB_new.targB.qY = qY
@@ -649,7 +649,7 @@ class ModeMatchingOverlapper(object):
                 **kwargs
             )
 
-        return wavestate.bunch.Bunch(
+        return Bunch(
             A_table_str = A_table_str,
             B_table_str = B_table_str,
             C_table_str = C_table_str,

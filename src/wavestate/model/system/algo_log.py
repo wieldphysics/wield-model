@@ -10,7 +10,7 @@ import re
 import contextlib
 import declarative
 
-from transient.utilities.strings import padding_remove
+from wavestate.utilities.strings import padding_remove
 
 class LoggingAlgorithm(object):
     def __init__(

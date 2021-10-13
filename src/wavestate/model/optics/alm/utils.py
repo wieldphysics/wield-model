@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals
-#from builtins import range
 import numpy as np
-from transient.numrep.complex import Complex
-from transient.matrix.utilities import matrix_stack
+from wavestate.utilities.np import matrix_stack
 
 def np_check_sorted(vals):
     if len(vals.shape) > 1:
@@ -48,7 +45,7 @@ def eigen_q(mat):
     pe_B = mat[..., 0, 1]
     pe_C = mat[..., 1, 0]
     pe_D = mat[..., 1, 1]
-    q = Complex((pe_A - pe_D)/(2 * pe_C), np.sqrt(-((pe_D-pe_A)**2 + 4 * pe_B * pe_C))/(2 * abs(pe_C)))
+    q = ((pe_A - pe_D)/(2 * pe_C) + 1j * np.sqrt(-((pe_D-pe_A)**2 + 4 * pe_B * pe_C))/(2 * abs(pe_C)))
     return q
 
 

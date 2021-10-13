@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
-#import numpy as np
 import collections
-from collections import abc
-import declarative
-from transient.utilities.priority_queue import HeapPriorityQueue
+from collections.abc import Mapping
+from wavestate.utilities.priority_queue import HeapPriorityQueue
+from wavestate.bunch import Bunch
 from ...optics import alm
 
 from .. import algo_phys
@@ -88,7 +86,7 @@ class ModeMatchingLinkageAlgorithm(object):
         parents = dict()
         visited = set()
 
-        if isinstance(oLp1_group, abc.Mapping):
+        if isinstance(oLp1_group, Mapping):
             for oLp1, weight in oLp1_group.items():
                 name1 = oLp1
                 best_weights[name1] = weight
@@ -161,7 +159,7 @@ class ModeMatchingLinkageAlgorithm(object):
 
         #gives shortest path between the groups
         #remap through the name-mapping to use oLp
-        return wavestate.bunch.Bunch(
+        return Bunch(
             path_shortest      = shortest_path[::-1],
             weight_shortest    = weight_best,
             parents            = {k: v if v is not None else None for k, v in parents.items()},
@@ -184,7 +182,7 @@ class ModeMatchingLinkageAlgorithm(object):
                 prop_ol2idx = dict(),
                 inc_ol2idx  = dict(),
             )
-            return wavestate.bunch.Bunch(
+            return Bunch(
                 oLp_path     = oLp_path,
                 Wk           = Wk,
                 X            = Xtransporter,
@@ -289,7 +287,7 @@ class ModeMatchingLinkageAlgorithm(object):
                 inc_ol2idx  = Yinc_ol2idx,
             )
 
-        return wavestate.bunch.Bunch(
+        return Bunch(
             oLp_path     = oLp_path,
             Wk           = Wk,
             X            = Xtransporter,

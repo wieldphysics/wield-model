@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
+"""
+"""
 import numpy as np
-from .utils import str_m, str_D, Complex
+from .utils import str_m, str_D
 
 class ComplexBeamParam(object):
     """
@@ -10,8 +11,13 @@ class ComplexBeamParam(object):
     pi = np.pi
     I = 1j
 
-    #make this complex number dispatch smarter
-    complex = Complex
+    # make this complex number dispatch smarter
+    @staticmethod
+    def complex(R, I = None):
+        if I is not None:
+            return R + 1j*I
+        else:
+            return R
 
     gouy_phasor = 1
 

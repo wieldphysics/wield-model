@@ -3,8 +3,8 @@
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
 
-from transient.model import optics
-from transient.model import base
+from wavestate.model import optics
+from wavestate.model import base
 
 def system1064(SHG = True):
     obj_sys = base.SimulationObject()

@@ -7,17 +7,17 @@ import pytest
 from icecream import ic
 
 
-from transient.model import pgraph
-from transient.model import optics
-from transient.model import base
-from transient import model
-from transient.model.system import algo_bg
-from transient.model.system import algo_freq
-from transient.model.system import algo_phys
-from transient.model.system import algo_graphs
+from wavestate.model import pgraph
+from wavestate.model import optics
+from wavestate.model import base
+from wavestate.model import model
+from wavestate.model.system import algo_bg
+from wavestate.model.system import algo_freq
+from wavestate.model.system import algo_phys
+from wavestate.model.system import algo_graphs
 
-from transient.model.system import algo_log
-from transient.pytest import relfile_test
+from wavestate.model.system import algo_log
+from wavestate.pytest import relfile_test
 
 pytestmark = pytest.mark.xfail(reason = "all tests still WIP")
 
@@ -82,7 +82,7 @@ def test_FP_DC_scan(plot):
     #ic(pa.dc('REFL/', demod = 'RF9'))
 
     if plot:
-        from transient.utilities.mpl import mplfigB
+        from wavestate.utilities.mpl import mplfigB
         axB = mplfigB(Nrows = 2)
         axB.ax0.plot(
             obj_sys['M1_M2/length_scan[m]'],
@@ -124,7 +124,7 @@ def test_FP_AC(plot):
     #ic(pa.dc('REFL/', demod = 'RF9'))
 
     if plot:
-        from transient.utilities.mpl import mplfigB
+        from wavestate.utilities.mpl import mplfigB
         axB = mplfigB(Nrows = 3)
         axB.ax0.loglog(
             F_AC_Hz,
@@ -161,7 +161,7 @@ def test_FP_AC(plot):
 #    #from icecream import ic
 #    #ic(edges)
 #
-#    from transient.matrix.SRE.semidense import SREkmatrix_inverse
+#    from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
 #
 #    nmap, SREIO = pa.dc.SREIO_DC(
 #        map_nodes = True,

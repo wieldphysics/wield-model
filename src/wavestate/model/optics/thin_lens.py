@@ -4,7 +4,7 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 import numpy as np
 
-from transient.matrix.utilities import matrix_stack
+from wavestate.utilities.np import matrix_stack
 from .. import base
 from . import alm
 

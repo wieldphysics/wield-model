@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
 import numpy as np
 import collections
 
-from transient import matrix
-from transient.matrix.utilities import matrix_stack
+from wavestate.utilities.np import matrix_stack
 
 from .. import base
 from . import alm

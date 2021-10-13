@@ -8,7 +8,7 @@ import collections
 import threading
 import contextlib
 
-from transient.numrep import constants
+from wavestate.model.utilities import constants
 
 from . import utilities
 

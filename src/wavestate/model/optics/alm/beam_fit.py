@@ -10,7 +10,7 @@ from .beam_param import (
     ComplexBeamParam
 )
 
-from transient.utilities.mpl import (
+from wavestate.utilities.mpl import (
     mplfigB,
 )
 

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
-import declarative
-
-from transient.numrep import constants
+from wavestate.model.utilities import constants
+from wavestate.bunch import Bunch
 
 from .. import base
 from .. import _base
@@ -106,7 +104,7 @@ class PhysicsAlgorithm(object):
         return self._ga
 
     def _setup_optical(self):
-        optical_settings = wavestate.bunch.Bunch(
+        optical_settings = Bunch(
             polarization    = True,
             quantum         = 'pm',
             transverse      = None,

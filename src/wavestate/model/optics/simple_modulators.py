@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
-import numpy as np
-
-from transient import matrix
 from .. import base
 
 

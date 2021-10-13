@@ -4,7 +4,7 @@
 from __future__ import division, print_function, unicode_literals, absolute_import
 from os import path
 
-from transient.model.system import algo_log
+from wavestate.model.system import algo_log
 
 
 def test_log():

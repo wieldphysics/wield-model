@@ -2,7 +2,7 @@
 """
 """
 from __future__ import division, print_function, unicode_literals, absolute_import
-from transient.utilities import ref_p_split, ref_port_split
+from wavestate.utilities import ref_p_split, ref_port_split
 import sympy
 import collections
 

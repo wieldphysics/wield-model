@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
 import numpy as np
-import declarative
 import collections
 import itertools
 import warnings
+from wavestate.bunch import Bunch
 from . import mm_overlapper
 from ...optics import alm
 
@@ -23,7 +22,7 @@ class ModeMatchingOverlapperOptimizing(mm_overlapper.ModeMatchingOverlapper):
     def optimizable_parameters(self):
         comp = self.compile_overlap_calculation(self.pbg)
 
-        return wavestate.bunch.Bunch(
+        return Bunch(
             usable = comp.usable_refs,
             viewed = comp.viewed_refs,
             locked = comp.locked_refs,
@@ -241,7 +240,7 @@ class ModeMatchingOverlapperOptimizing(mm_overlapper.ModeMatchingOverlapper):
         t1B = self[self.target1]
         t2B = self[self.target2]
 
-        comp = wavestate.bunch.Bunch()
+        comp = Bunch()
         #standardize direction
         if t1B.type == 'to' and t2B.type == 'from':
             t1B, t2B = t2B, t1B
@@ -394,7 +393,7 @@ class ModeMatchingOverlapperOptimizing(mm_overlapper.ModeMatchingOverlapper):
                 t1qY = pre_t1qY.propagate_matrix(np.linalg.inv(mat1Y))
                 t2qX = pre_t2qX.propagate_matrix(np.linalg.inv(mat2X))
                 t2qY = pre_t2qY.propagate_matrix(np.linalg.inv(mat2Y))
-            return wavestate.bunch.Bunch(
+            return Bunch(
                 t1qX = t1qX,
                 t2qX = t2qX,
                 t1qY = t1qY,
@@ -472,7 +471,7 @@ def build_length_constraints(
             for op, scale in cmap.items():
                 len_m_sum += pbg._resolve_parameter(*op) * scale
             #print(len_m, len_m_sum)
-    return wavestate.bunch.Bunch(
+    return Bunch(
         lengths     = Zprop_lengths,
         deps        = Zprop_deps,
         constraints = Zprop_constraints,
@@ -570,7 +569,7 @@ def compile_length_constraints(
             lengths_inv = mat_indep_inv @ np.asarray(ZpropB.lengths)
         except np.linalg.linalg.LinAlgError:
             return None
-        return wavestate.bunch.Bunch(
+        return Bunch(
             ops_constrain = ops_constrain,
             ops_indep     = ops_indep,
             mat_constrain = mat_constrain,

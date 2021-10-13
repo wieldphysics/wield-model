@@ -1,7 +1,7 @@
 """
 """
 from __future__ import print_function, division, unicode_literals, absolute_import
-from transient.matrix.semidense import KeyGroup
+from wavestate.utilities.np.semidense import KeyGroup
 
 
 kg_polarization = KeyGroup(
