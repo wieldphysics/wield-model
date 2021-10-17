@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
+
 from wavestate.utilities import ref_p_split, ref_port_split
 import sympy
 import collections
