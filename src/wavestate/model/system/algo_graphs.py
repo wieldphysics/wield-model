@@ -8,7 +8,7 @@
 """
 """
 
-#import declarative
+#from wavestate import declarative
 #import collections
 #import numpy as np
 

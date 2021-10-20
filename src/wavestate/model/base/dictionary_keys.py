@@ -11,7 +11,7 @@ try:
     from collections.abc import Mapping as MappingABC
 except ImportError:
     from collections import Mapping as MappingABC
-import declarative
+from wavestate import declarative
 
 
 class DictKey(MappingABC):

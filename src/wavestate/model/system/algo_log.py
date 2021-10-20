@@ -14,7 +14,7 @@ import logging
 import re
 
 import contextlib
-import declarative
+from wavestate import declarative
 
 from wavestate.utilities.strings import padding_remove
 

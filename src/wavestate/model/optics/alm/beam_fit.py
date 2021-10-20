@@ -10,7 +10,7 @@
 
 import numpy as np
 import scipy.optimize
-import declarative
+from wavestate import declarative
 
 from .beam_param import (
     ComplexBeamParam
