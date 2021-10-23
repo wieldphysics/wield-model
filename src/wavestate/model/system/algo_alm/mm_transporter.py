@@ -22,12 +22,12 @@ class MMTransporter(object):
         prop_ol2idx,
         inc_ol2idx,
     ):
-        self.oLp_path    = oLp_path
-        self.Wk        = Wk
-        self.prop      = prop
-        self.inc       = inc
-        self.prop_ol2idx  = prop_ol2idx
-        self.inc_ol2idx   = inc_ol2idx
+        self.oLp_path = oLp_path
+        self.Wk = Wk
+        self.prop = prop
+        self.inc = inc
+        self.prop_ol2idx = prop_ol2idx
+        self.inc_ol2idx = inc_ol2idx
 
         mat_inc = np.eye(2)
         len_inc = 0
@@ -81,34 +81,33 @@ class MMTransporter(object):
         else:
             return self.inc_build_len[self.inc_ol2idx[ol]]
 
-
     def z2mat(self, Z):
         Z = np.asarray(Z)
         Zorig = Z
         if Z.shape == ():
             Z = Z.reshape(1)
-        mat_by_z  = []
-        idx_mat   = 1
+        mat_by_z = []
+        idx_mat = 1
         matX_last = np.eye(2)
-        z_last    = 0
-        z_next    = self.inc_build_len[idx_mat]
+        z_last = 0
+        z_next = self.inc_build_len[idx_mat]
         for idx in np.argsort(Z):
             z = Z[idx]
             while z > z_next:
                 matX_last = self.inc_build_mat[idx_mat]
                 z_last = self.inc_build_len[idx_mat]
                 if idx_mat + 1 >= len(self.inc_build_len):
-                    z_next = float('infinity')
+                    z_next = float("infinity")
                 else:
                     idx_mat += 1
                     z_next = self.inc_build_len[idx_mat]
             z_diff = z - z_last
             if z_diff < 0:
-                NaN = float('NaN')
+                NaN = float("NaN")
                 mat_by_z.append(np.array([[NaN, NaN], [NaN, NaN]]))
                 continue
             if z > self.inc_build_len[-1]:
-                NaN = float('NaN')
+                NaN = float("NaN")
                 mat_by_z.append(np.array([[NaN, NaN], [NaN, NaN]]))
                 continue
 
@@ -122,4 +121,3 @@ class MMTransporter(object):
             return mat_by_z[0]
         else:
             return np.array(mat_by_z)
-

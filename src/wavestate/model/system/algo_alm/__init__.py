@@ -10,4 +10,3 @@
 
 
 from .algo_alm import ModeMatchingAlgorithm
-

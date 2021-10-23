@@ -10,7 +10,8 @@
 import collections
 
 from .. import base
-#from wavestate.model import matrix
+
+# from wavestate.model import matrix
 
 
 class Vacuum(base.OpticalObject):
@@ -19,7 +20,7 @@ class Vacuum(base.OpticalObject):
 
     @classmethod
     def visit_port_information(cls, manip):
-        manip.gen_optical_port('+A', 'A')
+        manip.gen_optical_port("+A", "A")
         return
 
     @classmethod
@@ -28,29 +29,29 @@ class Vacuum(base.OpticalObject):
             raise NotImplementedError()
             # TODO
             kmatrix = optical_quantum_noise_matrix(manip)
-            manip.add_noise('A!o', kmatrix)
+            manip.add_noise("A!o", kmatrix)
 
 
 def optical_quantum_noise_matrix(manip):
     settings = manip.optical_settings()
-    basis = manip.link_basis('A!o')
-    assert(settings.quantum == 'pm')
+    basis = manip.link_basis("A!o")
+    assert settings.quantum == "pm"
 
     # this is an array of the frequencies
     km = collections.defaultdict(dict)
-    for Fk in basis['frequency'].enumerated:
-        for Wk, iwval in manip.basis_wavenumbers(with_keys = True):
-            km[(Fk, Wk, '+AC')][(Fk, Wk, '-AC')] = [[manip.constants.c_m_s * manip.constants.h_Js * iwval / 2]]
+    for Fk in basis["frequency"].enumerated:
+        for Wk, iwval in manip.basis_wavenumbers(with_keys=True):
+            km[(Fk, Wk, "+AC")][(Fk, Wk, "-AC")] = [
+                [manip.constants.c_m_s * manip.constants.h_Js * iwval / 2]
+            ]
     kmatrix = matrix.KeyMatrixSame(
-        st = (
-            basis['frequency'],
-            basis['wavenumber'],
-            basis['quantum'],
+        st=(
+            basis["frequency"],
+            basis["wavenumber"],
+            basis["quantum"],
         ),
-        kmatrix = km,
-        build   = True,
-        check   = manip.check_build,
+        kmatrix=km,
+        build=True,
+        check=manip.check_build,
     )
     return kmatrix
-
-

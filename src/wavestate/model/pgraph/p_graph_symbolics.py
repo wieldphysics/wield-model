@@ -19,6 +19,7 @@ class ParameterGraphSymbolics(ParameterGraph):
     """
     For running some computations sybolically
     """
+
     def __init__(self, root):
         super(ParameterGraphSymbolics, self).__init__(root)
         if not isinstance(root, ParameterGraphSymbolics):
@@ -26,4 +27,3 @@ class ParameterGraphSymbolics(ParameterGraph):
             self.symbols2op = dict()
         else:
             raise NotImplementedError()
-

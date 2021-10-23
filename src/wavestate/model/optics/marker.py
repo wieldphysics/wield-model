@@ -17,8 +17,8 @@ class Marker(base.OpticalObject):
 
     def port_chain(self, p, pname):
         bmap = {
-            '+A-t' :  (None, '+B'),
-            '+B-t' :  (None, '+A'),
+            "+A-t": (None, "+B"),
+            "+B-t": (None, "+A"),
         }.get(pname, None)
 
         if bmap is not None:
@@ -28,15 +28,15 @@ class Marker(base.OpticalObject):
 
     @classmethod
     def visit_port_information(cls, manip):
-        manip.gen_optical_port('+A', 'A')
-        manip.gen_optical_port('+B', 'B')
+        manip.gen_optical_port("+A", "A")
+        manip.gen_optical_port("+B", "B")
         return
 
     def visit_mode_matching_linkage(self, manip):
-        manip.add_link('B!i', 'A!o', None)
-        manip.add_link('A!i', 'B!o', None)
+        manip.add_link("B!i", "A!o", None)
+        manip.add_link("A!i", "B!o", None)
 
-    #def visit_mode_matching_transport(self, manip):
+    # def visit_mode_matching_transport(self, manip):
     #    length_m = manip.p['length[m]']
     #    #no need to check these since the space can only be called on proper
     #    #links and the two directions are identical
@@ -65,4 +65,4 @@ class Marker(base.OpticalObject):
 
 class MaterialMarker(space.Space):
     annotate_as_space = False
-    #TODO, need to apply substrate to propagation
+    # TODO, need to apply substrate to propagation

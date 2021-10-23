@@ -11,17 +11,16 @@
 import numpy as np
 from .. import base
 
+
 class OpticalFrequency(base.SimulationObject):
     def __init__(self):
         super(OpticalFrequency, self).__init__()
         with self._internal():
-            self['wavelength[m]'] = None
-            self['order'] = 1
+            self["wavelength[m]"] = None
+            self["order"] = 1
 
             self.set_assign(
-                pfunc = lambda _lambda : 2 * np.pi/_lambda,
-                kto   = 'wavenumber[1_m]',
-                kfrom = 'wavelength[m]',
+                pfunc=lambda _lambda: 2 * np.pi / _lambda,
+                kto="wavenumber[1_m]",
+                kfrom="wavelength[m]",
             )
-
-

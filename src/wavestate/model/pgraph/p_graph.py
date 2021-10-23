@@ -9,14 +9,13 @@
 """
 
 
-#from .utilities import ref_value_split, ref_port_split, ref_2_rtup
+# from .utilities import ref_value_split, ref_port_split, ref_2_rtup
 from . import utilities
 from .p_graph_impl import ParameterGraphImpl
 
 
 class ParameterGraph(ParameterGraphImpl):
-
-    def override_value(self, p_ref, val, obj = None):
+    def override_value(self, p_ref, val, obj=None):
         if obj is None:
             obj = self.root
         rtup, vtup = utilities.ref_value_split(p_ref)
@@ -33,7 +32,7 @@ class ParameterGraph(ParameterGraphImpl):
             self.clear_value_op(op_dep)
         return
 
-    def resolve_object(self, key, obj = None):
+    def resolve_object(self, key, obj=None):
         """
         Takes a reference key and resolves the specific object
         """
@@ -42,10 +41,10 @@ class ParameterGraph(ParameterGraphImpl):
         rtup = utilities.ref_2_rtup(key)
         for ref in rtup:
             obj = self.object_references[obj][ref]
-        #TODO, make better error handling
+        # TODO, make better error handling
         return obj
 
-    def resolve_reference(self, key, obj = None):
+    def resolve_reference(self, key, obj=None):
         if obj is None:
             obj = self.root
         rtup, vtup = utilities.ref_value_split(key)
@@ -53,7 +52,7 @@ class ParameterGraph(ParameterGraphImpl):
             obj = self.object_references[obj][ref]
         return obj, vtup
 
-    def get_parameter(self, key, obj = None):
+    def get_parameter(self, key, obj=None):
         if obj is None:
             obj = self.root
         return self.resolve_parameter(obj, key)
@@ -63,12 +62,12 @@ class ParameterGraph(ParameterGraphImpl):
             return self.get_parameter(key)
         elif isinstance(key, tuple):
             obj, key = key
-            return self.get_parameter(key, obj = obj)
+            return self.get_parameter(key, obj=obj)
         elif isinstance(key, slice):
             obj, key = key
-            return self.get_parameter(key, obj = obj)
+            return self.get_parameter(key, obj=obj)
         else:
-            raise RuntimeError('Unrecognized parameter index format')
+            raise RuntimeError("Unrecognized parameter index format")
 
     def resolve_parameter(self, obj, key):
         """
@@ -84,14 +83,14 @@ class ParameterGraph(ParameterGraphImpl):
         self.op_reqs[op].clear()
         obj, vtup = op
 
-        #safe delete
+        # safe delete
         self.object_parameter_values[obj].pop(vtup)
 
         for op_dep in self.op_deps[op]:
             self.clear_value_op(op_dep)
         return
 
-    def port_ref(self, bport_ref, obj = None):
+    def port_ref(self, bport_ref, obj=None):
         if obj is None:
             obj = self.root
         rtup, bpname = utilities.ref_port_split(bport_ref)
@@ -101,15 +100,16 @@ class ParameterGraph(ParameterGraphImpl):
     def object_iter(self):
         return self.object_path_built.keys()
 
-    def path_str(self, obj, vtup = None):
+    def path_str(self, obj, vtup=None):
         opath = self.object_path_built[obj]
         if vtup is not None:
-            return ('/'.join(opath) + '/' + '.'.join(vtup))
+            return "/".join(opath) + "/" + ".".join(vtup)
         else:
-            return ('/'.join(opath) + '/')
+            return "/".join(opath) + "/"
 
     _path_suffix_trie = None
-    def path_str_short(self, obj, pre = 1, vtup = None):
+
+    def path_str_short(self, obj, pre=1, vtup=None):
         if self._path_suffix_trie is None:
             self._path_suffix_trie = self._build_suffix_trie()
         opath = self.object_path_built[obj]
@@ -125,13 +125,13 @@ class ParameterGraph(ParameterGraphImpl):
                     pre -= 1
 
         if len(ptup) < len(opath):
-            opath = tuple(['..'] + ptup[::-1])
+            opath = tuple([".."] + ptup[::-1])
         else:
             opath = tuple(ptup[::-1])
         if vtup is not None:
-            return ('/'.join(opath) + '/' + '.'.join(vtup))
+            return "/".join(opath) + "/" + ".".join(vtup)
         else:
-            return ('/'.join(opath) + '/')
+            return "/".join(opath) + "/"
 
     def _build_suffix_trie(self):
         trie_orig = dict()
@@ -150,10 +150,10 @@ class ParameterGraph(ParameterGraphImpl):
         return trie_orig
 
     def op_str(self, op):
-        #TODO, split this between the parameter and port-tup version
+        # TODO, split this between the parameter and port-tup version
         obj, path_or_port = op
         if isinstance(path_or_port, (list, tuple)):
-            path_or_port = '.'.join(path_or_port)
+            path_or_port = ".".join(path_or_port)
         ostr = self.path_str(obj)
         return ostr + path_or_port
 
@@ -180,12 +180,12 @@ class ParameterGraph(ParameterGraphImpl):
 
     def referred_path(self, obj, key):
         rtup, vtup = utilities.ref_value_split(key)
-        assert(vtup is None)
+        assert vtup is None
         for ref in rtup:
             obj = self.object_references[obj][ref]
         return obj
 
-    def referred_vtup(self, pkey, obj = None):
+    def referred_vtup(self, pkey, obj=None):
         rtup, vtup = utilities.ref_value_split(pkey)
         if obj is None:
             obj = self.root
@@ -208,13 +208,17 @@ class ParameterGraph(ParameterGraphImpl):
         for obj, vtup_dict in self.object_values.items():
             opath = self.object_path_built[obj]
             for vtup, cdict in vtup_dict.items():
-                print('/'.join(opath) + '/' + '.'.join(vtup))
+                print("/".join(opath) + "/" + ".".join(vtup))
 
-    def print_values_eval(self, obj = None):
+    def print_values_eval(self, obj=None):
         def oprint(obj):
             opath = self.object_path_built[obj]
             for vtup, cdict in vtup_dict.items():
-                print('/'.join(opath) + '/' + '.'.join(vtup), self._resolve_parameter(obj, vtup))
+                print(
+                    "/".join(opath) + "/" + ".".join(vtup),
+                    self._resolve_parameter(obj, vtup),
+                )
+
         if obj is None:
             for obj, vtup_dict in self.object_values.items():
                 oprint(obj)
@@ -224,17 +228,18 @@ class ParameterGraph(ParameterGraphImpl):
     def print_tree(self, print=print):
         ptree = self._build_prefix_trie()
         import yaml
+
         s = yaml.dump(ptree)
         print(s)
         return s
 
-    def dict_values_eval(self, obj = None):
+    def dict_values_eval(self, obj=None):
         pdict = dict()
 
         def odict(obj):
             opath = self.object_path_built[obj]
             for vtup, cdict in vtup_dict.items():
-                key = '/'.join(opath) + '/' + '.'.join(vtup)
+                key = "/".join(opath) + "/" + ".".join(vtup)
                 pdict[key] = self._resolve_parameter(obj, vtup)
 
         if obj is None:
@@ -243,4 +248,3 @@ class ParameterGraph(ParameterGraphImpl):
         else:
             odict(obj)
         return pdict
-

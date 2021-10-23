@@ -11,10 +11,7 @@ from .vacuum import Vacuum
 
 from .laser import Laser
 
-from .mirror import (
-    Mirror,
-    DichroicMirror
-)
+from .mirror import Mirror, DichroicMirror
 
 from .space import Space
 
@@ -37,10 +34,7 @@ from .simple_modulators import (
     SimpleSSBLowerModulator,
 )
 
-from ..base.optical_frequency import (
-    OpticalFrequency,
-    OpticalFrequencyAliases
-)
+from ..base.optical_frequency import OpticalFrequency, OpticalFrequencyAliases
 
 
 from .squeezer import (

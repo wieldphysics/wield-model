@@ -19,13 +19,12 @@ from . import mm_transporter
 
 
 class ModeMatchingLinkageAlgorithm(object):
-    """
-    """
+    """ """
 
     def __init__(self, pa):
         self.log = pa.log
         self.pbg = pa.pbg
-        #pg.print_parameters_eval()
+        # pg.print_parameters_eval()
         self.fs = pa.fs
         self.bg = pa.bg
         self.pa = pa
@@ -43,13 +42,13 @@ class ModeMatchingLinkageAlgorithm(object):
             except AttributeError:
                 continue
             else:
-                #TODO verbose option for found objects?
-                #print(obj)
+                # TODO verbose option for found objects?
+                # print(obj)
                 pass
 
             manip = MMAlgorithmLinkManipulator(
-                obj     = obj,
-                mm_algo = self,
+                obj=obj,
+                mm_algo=self,
             )
 
             visit_algo(manip)
@@ -62,7 +61,7 @@ class ModeMatchingLinkageAlgorithm(object):
 
         for oLp_fr, eset in self.bg.link_seq.items():
             m_fr = oLp_fr
-            #print("FT: ", m_fr, eset)
+            # print("FT: ", m_fr, eset)
             for oLp_to in eset:
                 m_to = oLp_to
                 edges[m_fr, m_to] = None
@@ -83,8 +82,7 @@ class ModeMatchingLinkageAlgorithm(object):
         oLp1_group,
         oLp2_group,
     ):
-        """
-        """
+        """ """
         seq, req, edges = self.SRE
 
         best_weights = dict()
@@ -142,7 +140,7 @@ class ModeMatchingLinkageAlgorithm(object):
 
         nonunique_shortest = False
         oLp2_best = None
-        weight_best = (float('inf'), 0)
+        weight_best = (float("inf"), 0)
         for oLp2 in oLp2_group:
             try:
                 weight = best_weights[oLp2]
@@ -154,8 +152,8 @@ class ModeMatchingLinkageAlgorithm(object):
             elif weight == weight_best:
                 nonunique_shortest = True
 
-        #TODO, check for path-overlap uniqueness
-        #this should determine if cavities are linear or travelling-wave
+        # TODO, check for path-overlap uniqueness
+        # this should determine if cavities are linear or travelling-wave
 
         shortest_path = []
         node = oLp2_best
@@ -163,65 +161,65 @@ class ModeMatchingLinkageAlgorithm(object):
             shortest_path.append(node)
             node = parents.get(node)
 
-        #gives shortest path between the groups
-        #remap through the name-mapping to use oLp
+        # gives shortest path between the groups
+        # remap through the name-mapping to use oLp
         return Bunch(
-            path_shortest      = shortest_path[::-1],
-            weight_shortest    = weight_best,
-            parents            = {k: v if v is not None else None for k, v in parents.items()},
-            best_weights       = {k: v for k, v in best_weights.items()},
-            oLp1_group         = oLp1_group,
-            oLp2_group         = oLp2_group,
-            nonunique_shortest = nonunique_shortest,
+            path_shortest=shortest_path[::-1],
+            weight_shortest=weight_best,
+            parents={k: v if v is not None else None for k, v in parents.items()},
+            best_weights={k: v for k, v in best_weights.items()},
+            oLp1_group=oLp1_group,
+            oLp2_group=oLp2_group,
+            nonunique_shortest=nonunique_shortest,
         )
 
     def _path_transporters(self, oLp_path, Wk):
-        assert(Wk is not None)
+        assert Wk is not None
         Wk = self.fs.parameter_to_wk(Wk)
 
         if not oLp_path:
             Xtransporter = mm_transporter.MMTransporter(
-                oLp_path  = oLp_path,
-                Wk       = Wk,
-                prop     = [],
-                inc      = [],
-                prop_ol2idx = dict(),
-                inc_ol2idx  = dict(),
+                oLp_path=oLp_path,
+                Wk=Wk,
+                prop=[],
+                inc=[],
+                prop_ol2idx=dict(),
+                inc_ol2idx=dict(),
             )
             return Bunch(
-                oLp_path     = oLp_path,
-                Wk           = Wk,
-                X            = Xtransporter,
-                Y            = Xtransporter,
+                oLp_path=oLp_path,
+                Wk=Wk,
+                X=Xtransporter,
+                Y=Xtransporter,
             )
 
-        #these will hold (obj, param-function) pairs
-        #the object storage allows param views to be made for the function
+        # these will hold (obj, param-function) pairs
+        # the object storage allows param views to be made for the function
         Xprop = []
         Yprop = []
         Zprop_scales = []
         Zprop_deps = []
 
-        #these will hold (length, transport-function, matrix) tuples
-        #the lengths are how far the transport-function acts and the matrix
-        #is the final value of the transport-function
-        Xinc   = []
-        Yinc   = []
+        # these will hold (length, transport-function, matrix) tuples
+        # the lengths are how far the transport-function acts and the matrix
+        # is the final value of the transport-function
+        Xinc = []
+        Yinc = []
 
         Xprop_ol2idx = dict()
         Yprop_ol2idx = dict()
         Zprop_ol2idx = dict()
-        Xinc_ol2idx  = dict()
-        Yinc_ol2idx  = dict()
+        Xinc_ol2idx = dict()
+        Yinc_ol2idx = dict()
 
-        #holds the lengths used for path formation, or None for trivial linkage
+        # holds the lengths used for path formation, or None for trivial linkage
         edges = self.SRE[2]
 
         Xprop_ol2idx[oLp_path[0]] = 0
         Yprop_ol2idx[oLp_path[0]] = 0
         Zprop_ol2idx[oLp_path[0]] = 0
-        Xinc_ol2idx[oLp_path[0]]  = 0
-        Yinc_ol2idx[oLp_path[0]]  = 0
+        Xinc_ol2idx[oLp_path[0]] = 0
+        Yinc_ol2idx[oLp_path[0]] = 0
 
         for oLp_fr, oLp_to in path_pairs(oLp_path):
 
@@ -230,34 +228,36 @@ class ModeMatchingLinkageAlgorithm(object):
                 continue
             obj_fr = oLp_fr[0]
             obj_to = oLp_to[0]
-            #only internal linkages can be nontrivial
-            assert(obj_fr is obj_to)
+            # only internal linkages can be nontrivial
+            assert obj_fr is obj_to
             manip = MMAlgorithmTransportManipulator(
-                obj      = obj_fr,
-                mm_algo  = self,
-                lport_fr = oLp_fr[1],
-                lport_to = oLp_to[1],
-                Wk       = Wk,
+                obj=obj_fr,
+                mm_algo=self,
+                lport_fr=oLp_fr[1],
+                lport_to=oLp_to[1],
+                Wk=Wk,
             )
             obj_fr.visit_mode_matching_transport(manip)
 
             Xprop_ol2idx[oLp_fr] = len(Xprop)
             Yprop_ol2idx[oLp_fr] = len(Yprop)
             Zprop_ol2idx[oLp_fr] = len(Zprop_scales)
-            Xinc_ol2idx[oLp_fr]  = len(Xinc)
-            Yinc_ol2idx[oLp_fr]  = len(Yinc)
+            Xinc_ol2idx[oLp_fr] = len(Xinc)
+            Yinc_ol2idx[oLp_fr] = len(Yinc)
 
-            #now commit the manipulator settings into the lists
+            # now commit the manipulator settings into the lists
             Xprop.extend((obj_fr, p_trans) for p_trans in manip._Xprop)
             Yprop.extend((obj_fr, p_trans) for p_trans in manip._Yprop)
             Zp_scale = dict()
             Zp_deps = dict()
             for p_trans, clist in manip._Zprop.items():
-                #TODO need a pbg.pref2vtup method rather than this split nonsense
-                vtup = tuple(p_trans.split('.'))
+                # TODO need a pbg.pref2vtup method rather than this split nonsense
+                vtup = tuple(p_trans.split("."))
                 if isinstance(clist, (list, tuple)):
                     Zp_scale[(obj_fr, vtup)] = clist[0]
-                    Zp_deps[(obj_fr, vtup)] = [(obj_fr, tuple(c.split('.'))) for c in clist[1:]]
+                    Zp_deps[(obj_fr, vtup)] = [
+                        (obj_fr, tuple(c.split("."))) for c in clist[1:]
+                    ]
                 else:
                     Zp_scale[(obj_fr, vtup)] = clist
             Zprop_scales.append(Zp_scale)
@@ -270,40 +270,40 @@ class ModeMatchingLinkageAlgorithm(object):
             Zprop_ol2idx[oLp_to] = len(Zprop_scales)
             Xinc_ol2idx[oLp_to] = len(Xinc)
             Yinc_ol2idx[oLp_to] = len(Yinc)
-            #TODO, check that the total inc length equals the edge length
+            # TODO, check that the total inc length equals the edge length
 
         Xtransporter = mm_transporter.MMTransporter(
-            oLp_path  = oLp_path,
-            Wk       = Wk,
-            prop     = Xprop,
-            inc      = Xinc,
-            prop_ol2idx = Xprop_ol2idx,
-            inc_ol2idx  = Xinc_ol2idx,
+            oLp_path=oLp_path,
+            Wk=Wk,
+            prop=Xprop,
+            inc=Xinc,
+            prop_ol2idx=Xprop_ol2idx,
+            inc_ol2idx=Xinc_ol2idx,
         )
 
         if Xinc is Yinc:
             Ytransporter = Xtransporter
         else:
             Ytransporter = mm_transporter.MMTransporter(
-                oLp_path  = oLp_path,
-                Wk       = Wk,
-                prop     = Yprop,
-                inc      = Yinc,
-                prop_ol2idx = Yprop_ol2idx,
-                inc_ol2idx  = Yinc_ol2idx,
+                oLp_path=oLp_path,
+                Wk=Wk,
+                prop=Yprop,
+                inc=Yinc,
+                prop_ol2idx=Yprop_ol2idx,
+                inc_ol2idx=Yinc_ol2idx,
             )
 
         return Bunch(
-            oLp_path     = oLp_path,
-            Wk           = Wk,
-            X            = Xtransporter,
-            Y            = Ytransporter,
-            Zprop_scales = Zprop_scales,
-            Zprop_deps   = Zprop_deps,
-            Zprop_ol2idx = Zprop_ol2idx,
+            oLp_path=oLp_path,
+            Wk=Wk,
+            X=Xtransporter,
+            Y=Ytransporter,
+            Zprop_scales=Zprop_scales,
+            Zprop_deps=Zprop_deps,
+            Zprop_ol2idx=Zprop_ol2idx,
         )
 
-    def _safe_oLp_path(self, oLp_set_seq, loop = False, allow_non_unique = False):
+    def _safe_oLp_path(self, oLp_set_seq, loop=False, allow_non_unique=False):
         dijkstra_seq = [self._dijkstra2(oLp_set_seq[0], oLp_set_seq[1])]
         last_oLp_set = oLp_set_seq[1]
 
@@ -317,7 +317,7 @@ class ModeMatchingLinkageAlgorithm(object):
             last_oLp_set = oLp_set
 
         if loop:
-            starters = {oLp : oLp for oLp in dijkstra_seq[-1].oLp2_group}
+            starters = {oLp: oLp for oLp in dijkstra_seq[-1].oLp2_group}
             for dijkstra in reversed(dijkstra_seq):
                 starters_next = dict()
                 for oLp_fr, oLp_to in starters.items():
@@ -334,14 +334,14 @@ class ModeMatchingLinkageAlgorithm(object):
                 starters_inv[oLp_to].add(oLp_fr)
 
             ambiguous_loop = False
-            weight_shortest = (float('inf'), 0)
+            weight_shortest = (float("inf"), 0)
             for oLp_to, oLp_fr_set in starters_inv.items():
                 last_oLp_set_weighted = dict()
                 for oLp in oLp_fr_set:
                     weight = dijkstra_seq[-1].best_weights.get(oLp, None)
                     if weight is not None:
                         last_oLp_set_weighted[oLp] = weight
-                #use the weighted set to dijkstra back the loop
+                # use the weighted set to dijkstra back the loop
                 dijkstra = self._dijkstra2(last_oLp_set_weighted, [oLp_to])
                 if dijkstra.nonunique_shortest:
                     ambiguous_loop = True
@@ -364,7 +364,7 @@ class ModeMatchingLinkageAlgorithm(object):
                         link_seq.append(node)
                     else:
                         break
-            #reverse and cut off new last element, so that the path is a loop
+            # reverse and cut off new last element, so that the path is a loop
             link_seq = link_seq[:0:-1]
         else:
             last_oLp_set_weighted = dict()
@@ -372,10 +372,17 @@ class ModeMatchingLinkageAlgorithm(object):
                 weight = dijkstra_seq[-1].best_weights.get(oLp, None)
                 if weight is not None:
                     last_oLp_set_weighted[oLp] = weight
-            sorted_links = sorted(last_oLp_set_weighted, key = lambda k : last_oLp_set_weighted[k])
+            sorted_links = sorted(
+                last_oLp_set_weighted, key=lambda k: last_oLp_set_weighted[k]
+            )
             best = sorted_links[0]
-            if not allow_non_unique and len(sorted_links) > 1 and last_oLp_set_weighted[sorted_links[1]] == last_oLp_set_weighted[best]:
-                #then the best path is ambiguous
+            if (
+                not allow_non_unique
+                and len(sorted_links) > 1
+                and last_oLp_set_weighted[sorted_links[1]]
+                == last_oLp_set_weighted[best]
+            ):
+                # then the best path is ambiguous
                 raise RuntimeError(
                     "Formulating the unique shortest path is ambiguous."
                     " Consider adding more waypoints."
@@ -390,22 +397,20 @@ class ModeMatchingLinkageAlgorithm(object):
                         link_seq.append(node)
                     else:
                         break
-            #reverse sequence
+            # reverse sequence
             link_seq = link_seq[::-1]
         if not link_seq:
             print("LSEQ ", link_seq, oLp_set_seq)
-            assert(False)
+            assert False
         return link_seq
 
 
 class MMAlgorithmView(algo_phys.PhysicsAlgorithmView):
     _mm_algo = None
+
     def __init__(self, mm_algo, **kw):
         super(MMAlgorithmView, self).__init__(
-            bg_algo = mm_algo.bg,
-            pbg     = mm_algo.pbg,
-            pa_algo = mm_algo.pa,
-            **kw
+            bg_algo=mm_algo.bg, pbg=mm_algo.pbg, pa_algo=mm_algo.pa, **kw
         )
         self._mm_algo = mm_algo
 
@@ -416,21 +421,18 @@ class MMAlgorithmLinkManipulator(MMAlgorithmView):
 
 
 class MMAlgorithmTransportManipulator(MMAlgorithmView):
-    _Zprop       = None
-    _Xprop       = None
-    _Yprop       = None
-    _Xinc        = None
-    _Yinc        = None
+    _Zprop = None
+    _Xprop = None
+    _Yprop = None
+    _Xinc = None
+    _Yinc = None
     _annotations = None
 
     def __init__(self, mm_algo, lport_fr, lport_to, Wk, **kw):
         self.lport_fr = lport_fr
         self.lport_to = lport_to
         self.Wk = Wk
-        super(MMAlgorithmTransportManipulator, self).__init__(
-            mm_algo,
-            **kw
-        )
+        super(MMAlgorithmTransportManipulator, self).__init__(mm_algo, **kw)
 
     def add_link(self, lport_fr, lport_to, length_m):
         self._mm_algo._object_edges[self._obj][lport_fr, lport_to] = length_m
@@ -438,7 +440,7 @@ class MMAlgorithmTransportManipulator(MMAlgorithmView):
     def IOR_n(self, substrate):
         return alm.substrates[substrate][self.Wk]
 
-    def set_Zpropagator(self, prop = None):
+    def set_Zpropagator(self, prop=None):
         if prop is None:
             self._Zprop = {}
         else:
@@ -462,8 +464,8 @@ class MMAlgorithmTransportManipulator(MMAlgorithmView):
         return
 
     def set_Xincremental(self, inc):
-        #print('inc', self._obj, self.lport_fr, self.lport_to)
-        #for (l_m, func, mat) in inc:
+        # print('inc', self._obj, self.lport_fr, self.lport_to)
+        # for (l_m, func, mat) in inc:
         #    print('inc2', mat)
         self._Xinc = inc
         return

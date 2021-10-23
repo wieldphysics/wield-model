@@ -21,30 +21,30 @@ class PhysicsDCAlgorithm(object):
         self.pa = pa
         self.log = pa.log
         self.pbg = pa.pbg
-        #pg.print_parameters_eval()
+        # pg.print_parameters_eval()
         self.bg = pa.bg
         self.fs = pa.fs
         self.check_build = pa.check_build
 
-        #(obj, lport) -> kvector
+        # (obj, lport) -> kvector
         self._sources = dict()
-        #obj-> (lportRow, lportCol) -> kmatrix
+        # obj-> (lportRow, lportCol) -> kmatrix
         self._object_edges = collections.defaultdict(dict)
 
-        #indicates which outputs to monitor for sensitivity
-        #views = {(self._obj, lport)}
+        # indicates which outputs to monitor for sensitivity
+        # views = {(self._obj, lport)}
         self._views = set()
 
-        #mapping from (obj,link) -> (link_fr, link_to)
-        #where the link_fr/link_to have the obj assumed
+        # mapping from (obj,link) -> (link_fr, link_to)
+        # where the link_fr/link_to have the obj assumed
         self._nl_deps = collections.defaultdict(set)
 
-        #indicates which outputs to monitor for sensitivity
-        #views = {(self._obj, lport) : kmatrix}
+        # indicates which outputs to monitor for sensitivity
+        # views = {(self._obj, lport) : kmatrix}
         self._noise = dict()
 
         self._solutions_DC_prev = dict()
-        self._solutions_DC      = dict()
+        self._solutions_DC = dict()
 
         solve_again = True
         while solve_again:
@@ -62,9 +62,9 @@ class PhysicsDCAlgorithm(object):
     def __call__(
         self,
         port_to,
-        obj_to = None,
-        dir_to = 'out',
-        demod = {},
+        obj_to=None,
+        dir_to="out",
+        demod={},
     ):
         """
         Gets the power or current at a photodiode.
@@ -75,14 +75,14 @@ class PhysicsDCAlgorithm(object):
 
         demod takes a frequency dictionary.
         """
-        oLp_to = self.bg.rBp2oLp(port_to, dir = dir_to)
+        oLp_to = self.bg.rBp2oLp(port_to, dir=dir_to)
         demod = self.fs.parameter_to_fk(demod)
 
         solvect = self._solutions_DC[oLp_to]
 
-        datavec = solvect.kmatrix[(demod, '+')][()][..., 0, 0]
-        #from icecream import ic; ic(datavec)
-        #TODO, check realness on DC-demod
+        datavec = solvect.kmatrix[(demod, "+")][()][..., 0, 0]
+        # from icecream import ic; ic(datavec)
+        # TODO, check realness on DC-demod
         if demod.DC_is():
             return datavec.real
         else:
@@ -91,13 +91,13 @@ class PhysicsDCAlgorithm(object):
     def PDsum(
         self,
         ref,
-        obj                 = None,
-        demod               = {},
-        units               = 'W',
-        raw_vector          = False,
-        itemize_frequencies = False,
-        itemize_wavelengths = False,
-        itemize_HOMs        = False,
+        obj=None,
+        demod={},
+        units="W",
+        raw_vector=False,
+        itemize_frequencies=False,
+        itemize_wavelengths=False,
+        itemize_HOMs=False,
     ):
         """
         Gets the power or current at a photodiode.
@@ -117,12 +117,14 @@ class PhysicsDCAlgorithm(object):
         try:
             visit_method = obj.visit_photodiode_linkage
         except AttributeError:
-            raise RuntimeError((
-                "Object or path not a photodiode type, it is instead a {}"
-            ).format(repr(obj)))
+            raise RuntimeError(
+                ("Object or path not a photodiode type, it is instead a {}").format(
+                    repr(obj)
+                )
+            )
 
-        view = PhysicsAlgorithmDCView(obj = obj, dc_algo = self)
-        #simple method just reports the port
+        view = PhysicsAlgorithmDCView(obj=obj, dc_algo=self)
+        # simple method just reports the port
         lport = visit_method(view)
 
         solvect = self._solutions_DC[(obj, lport)]
@@ -132,31 +134,31 @@ class PhysicsDCAlgorithm(object):
 
         if demod.DC_is():
             inner_prod = base.KeyMatrixSame(
-                st = (base.kg_twophoton_pm, ),
-                kmatrix = {('-',) : {('+', ) : [[1]]}},
-                build = True,
+                st=(base.kg_twophoton_pm,),
+                kmatrix={("-",): {("+",): [[1]]}},
+                build=True,
             )
             datavec = (solvect.T @ inner_prod @ solvect).kmatrix[()][()][..., 0, 0]
-            #TODO, check realness
+            # TODO, check realness
             return datavec.real
         else:
-            #vdict carries the indexs for the columns (from)
+            # vdict carries the indexs for the columns (from)
             km = dict()
-            for fd in self.pa.optical_basis_DC['frequency'].enumerated:
-                vdict = km.setdefault((fd, '-'), dict())
-                #the lower sideband moving up
+            for fd in self.pa.optical_basis_DC["frequency"].enumerated:
+                vdict = km.setdefault((fd, "-"), dict())
+                # the lower sideband moving up
                 fd_from = fd + demod
                 if self._optical_frequency_allowed(fd_from):
-                    vdict[(fd_from, '+')] = [[1]]
+                    vdict[(fd_from, "+")] = [[1]]
 
                 inner_prod = matrix.KeyMatrixSame(
-                    st      = (
-                        self.pa.optical_basis_DC['frequency'],
+                    st=(
+                        self.pa.optical_basis_DC["frequency"],
                         base.kg_twophoton_pm,
                     ),
-                    kmatrix = km,
-                    build   = True,
-                    check   = self.check_build,
+                    kmatrix=km,
+                    build=True,
+                    check=self.check_build,
                 )
 
             datavec = (solvect.T @ inner_prod @ solvect).kmatrix[()][()][..., 0, 0]
@@ -177,9 +179,9 @@ class PhysicsDCAlgorithm(object):
             sVpow = (sV.A @ sV).kmatrix[()][()][..., 0, 0]
             sVPpow = (sVp.A @ sVp).kmatrix[()][()][..., 0, 0]
 
-            relerr = diff_pow * (sVpow**-1 + sVPpow**-1)
-            #from icecream import ic
-            #if sV != 0:
+            relerr = diff_pow * (sVpow ** -1 + sVPpow ** -1)
+            # from icecream import ic
+            # if sV != 0:
             #    ic(sK, relerr)
             if np.any(relerr > self.N_tol_rel):
                 must_iterate = True
@@ -187,18 +189,20 @@ class PhysicsDCAlgorithm(object):
 
     def _solve_matrix_DC(self):
         SREIO = self.SREIO_DC(
-            map_nodes = True,
-            subtract_1 = True,
+            map_nodes=True,
+            subtract_1=True,
         )
         (seq, req, edges, inputs, outputs) = SREIO
         del SREIO
-        with self.log.heading('DC_inversion'):
+        with self.log.heading("DC_inversion"):
             seq, req, edges = matrix.SREkmatrix_inverse(
-                seq, req, edges,
-                outputs_set = outputs,
-                inputs_set  = inputs,
-                verbose     = False,
-                log         = self.log,
+                seq,
+                req,
+                edges,
+                outputs_set=outputs,
+                inputs_set=inputs,
+                verbose=False,
+                log=self.log,
             )
         solutions_DC = dict()
         for output in outputs:
@@ -226,32 +230,28 @@ class PhysicsDCAlgorithm(object):
             except AttributeError:
                 continue
             else:
-                #TODO verbose option for found objects?
-                #print(obj)
+                # TODO verbose option for found objects?
+                # print(obj)
                 pass
 
             manip = PhysicsAlgorithmDCManipulator(
-                obj     = obj,
-                dc_algo = self,
+                obj=obj,
+                dc_algo=self,
             )
 
             visit_algo(manip)
         return
 
-    def SREIO_DC(
-            self,
-            map_nodes = None,
-            subtract_1 = False
-    ):
+    def SREIO_DC(self, map_nodes=None, subtract_1=False):
         seq = collections.defaultdict(set)
         req = collections.defaultdict(set)
         edges = dict()
 
         for oLp_fr, eset in self.bg.link_seq.items():
-            m_fr = (oLp_fr)
-            #print("FT: ", m_fr, [map_nodes(oLp_to) for oLp_to in eset])
+            m_fr = oLp_fr
+            # print("FT: ", m_fr, [map_nodes(oLp_to) for oLp_to in eset])
             for oLp_to in eset:
-                m_to = (oLp_to)
+                m_to = oLp_to
                 edges[m_fr, m_to] = 1
                 seq[m_fr].add(m_to)
                 req[m_to].add(m_fr)
@@ -291,18 +291,16 @@ class PhysicsDCAlgorithm(object):
 
 class PhysicsAlgorithmDCView(algo_phys.PhysicsAlgorithmView):
     _dc_algo = None
+
     def __init__(self, dc_algo, **kw):
         super(PhysicsAlgorithmDCView, self).__init__(
-            bg_algo = dc_algo.bg,
-            pbg     = dc_algo.pbg,
-            pa_algo = dc_algo.pa,
-            **kw
+            bg_algo=dc_algo.bg, pbg=dc_algo.pbg, pa_algo=dc_algo.pa, **kw
         )
         self._dc_algo = dc_algo
 
     def configure_optical_wavenumber(self, wdict):
-        #TODO, check that the wavenumber exists
-        #assert(len(self._pa_algo.fs.freq_set_wavelengths) == 1)
+        # TODO, check that the wavenumber exists
+        # assert(len(self._pa_algo.fs.freq_set_wavelengths) == 1)
         return base.FrequencyKey(wdict)
 
     def parameter_to_fk(self, fparam):
@@ -311,12 +309,12 @@ class PhysicsAlgorithmDCView(algo_phys.PhysicsAlgorithmView):
     def optical_frequency_allowed(self, fk):
         return self._dc_algo._optical_frequency_allowed(fk)
 
-    def basis_frequencies(self, with_keys = False):
-        #print("FVs: ", self._pa_algo._basis_frequency_values_DC_optical)
+    def basis_frequencies(self, with_keys=False):
+        # print("FVs: ", self._pa_algo._basis_frequency_values_DC_optical)
         if with_keys:
             return zip(
-                self._pa_algo.optical_basis_DC['frequency'].enumerated,
-                self._pa_algo._basis_frequency_values_DC_optical
+                self._pa_algo.optical_basis_DC["frequency"].enumerated,
+                self._pa_algo._basis_frequency_values_DC_optical,
             )
         else:
             return self._pa_algo._basis_frequency_values_DC_optical
@@ -332,21 +330,21 @@ class PhysicsAlgorithmDCView(algo_phys.PhysicsAlgorithmView):
         while this method doesn't do a ton for DC analysis. It is overloaded
         for AC analysis to make things simpler
         """
-        for Wk, wnval in self.basis_wavenumbers(with_keys = True):
-            for Fk, fval in self.basis_frequencies(with_keys = True):
-                for Qk, conj in (('+', False), ('-', True)):
+        for Wk, wnval in self.basis_wavenumbers(with_keys=True):
+            for Fk, fval in self.basis_frequencies(with_keys=True):
+                for Qk, conj in (("+", False), ("-", True)):
                     yield (Wk, Fk, Qk), (wnval, fval, conj)
         return
 
-    #is a dictionary of known basis elements as of this linkage
+    # is a dictionary of known basis elements as of this linkage
     def link_basis(self, lport):
         op = (self._obj, lport)
         btype = self._bg_algo.link_basis_types[op]
         return {
-            'optical' :    self._pa_algo.optical_basis_DC,
-            'mechanical' : self._pa_algo.mechanical_basis_DC,
-            'signal' :     self._pa_algo.signal_basis_DC,
-            'electrical' : self._pa_algo.electrical_basis_DC,
+            "optical": self._pa_algo.optical_basis_DC,
+            "mechanical": self._pa_algo.mechanical_basis_DC,
+            "signal": self._pa_algo.signal_basis_DC,
+            "electrical": self._pa_algo.electrical_basis_DC,
         }[btype]
 
 
@@ -357,8 +355,8 @@ class PhysicsAlgorithmDCManipulator(PhysicsAlgorithmDCView):
     def add_source(self, lport, svect):
         basis = set(self.link_basis(lport).values())
         inj = set(svect.stR + svect.dtR)
-        assert(basis == inj)
-        #TODO, check vector consistency
+        assert basis == inj
+        # TODO, check vector consistency
         self._dc_algo._sources[self._obj, lport] = svect
 
     def add_view(self, lport):
@@ -383,7 +381,7 @@ class PhysicsAlgorithmDCManipulator(PhysicsAlgorithmDCView):
         for lpdep in lport_deps:
             self._dc_algo._nl_deps[(self._obj, lpdep)].add((lport_fr, lport_to))
 
-    def add_link(self, lport_fr, lport_to, kmatrix, lowering_only = False):
+    def add_link(self, lport_fr, lport_to, kmatrix, lowering_only=False):
         """
         Adds a link to the system matrix
 
@@ -393,28 +391,28 @@ class PhysicsAlgorithmDCManipulator(PhysicsAlgorithmDCView):
         if lowering_only:
             km_new = dict()
             for krow, kvect in kmatrix.kmatrix.items():
-                kvect_new_p = km_new.setdefault(krow + ('+',), dict())
-                kvect_new_n = km_new.setdefault(krow + ('-',), dict())
+                kvect_new_p = km_new.setdefault(krow + ("+",), dict())
+                kvect_new_n = km_new.setdefault(krow + ("-",), dict())
                 for kcol, kdm in kvect.items():
-                    kvect_new_p[kcol + ('+', )] = kdm
-                    kvect_new_n[kcol + ('-', )] = kdm.conjugate()
-            #TODO, not always using the optical basis for this
+                    kvect_new_p[kcol + ("+",)] = kdm
+                    kvect_new_n[kcol + ("-",)] = kdm.conjugate()
+            # TODO, not always using the optical basis for this
             kmatrix = kmatrix.__class__(
-                stR = kmatrix.stR + (self._pa_algo.optical_basis_DC['quantum'],),
-                stC = kmatrix.stC + (self._pa_algo.optical_basis_DC['quantum'],),
-                dtR = kmatrix.dtR,
-                dtC = kmatrix.dtC,
-                kmatrix = km_new,
-                build = False,
-                check = self.check_build,
+                stR=kmatrix.stR + (self._pa_algo.optical_basis_DC["quantum"],),
+                stC=kmatrix.stC + (self._pa_algo.optical_basis_DC["quantum"],),
+                dtR=kmatrix.dtR,
+                dtC=kmatrix.dtC,
+                kmatrix=km_new,
+                build=False,
+                check=self.check_build,
             )
 
         if isinstance(kmatrix, base.KeyMatrixBase):
             basisR = set(self.link_basis(lport_to).values())
-            assert(set(kmatrix.stR + kmatrix.dtR) <= basisR)
+            assert set(kmatrix.stR + kmatrix.dtR) <= basisR
             basisC = set(self.link_basis(lport_fr).values())
-            assert(set(kmatrix.stC + kmatrix.dtC) <= basisC)
+            assert set(kmatrix.stC + kmatrix.dtC) <= basisC
             self._dc_algo._object_edges[self._obj][lport_fr, lport_to] = kmatrix
         else:
-            #is probably just a number or array
+            # is probably just a number or array
             self._dc_algo._object_edges[self._obj][lport_fr, lport_to] = kmatrix
