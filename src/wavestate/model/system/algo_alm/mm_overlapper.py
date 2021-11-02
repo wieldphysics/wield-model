@@ -71,6 +71,8 @@ class ModeMatchingOverlapper(object):
 
             tB_new.qX = tB_new.targB.qX.propagate_matrix(matXfr)
             tB_new.qY = tB_new.targB.qY.propagate_matrix(matYfr)
+            tB_new.qXend = tB_new.qX.propagate_matrix(self.trans_center.X.full_trip_mat)
+            tB_new.qYend = tB_new.qY.propagate_matrix(self.trans_center.Y.full_trip_mat)
             return tB_new
 
         transB_fr = dict()
@@ -109,6 +111,7 @@ class ModeMatchingOverlapper(object):
         return olap
 
     def propagate_reference(self, target, name=None):
+        raise NotImplementedError("Not sure this is working as expected")
         if name is None:
             name = target + " reference"
         if target in self.transB_fr:

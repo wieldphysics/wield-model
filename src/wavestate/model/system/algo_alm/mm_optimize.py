@@ -245,7 +245,13 @@ class ModeMatchingOverlapperOptimizing(mm_overlapper.ModeMatchingOverlapper):
         )
         return overlapper
 
-    def compile_overlap_calculation(self, pbg=None):
+    def compile_overlap_calculation(
+            self,
+            pbg=None,
+            loc=None,
+    ):
+        # TODO, also allow 'from' or 'fr'
+        assert(loc in ['fr', 'to', None])
         if pbg is None:
             pbg = self.pbg
         t1B = self[self.target1]
@@ -266,26 +272,45 @@ class ModeMatchingOverlapperOptimizing(mm_overlapper.ModeMatchingOverlapper):
             if t1B.inv_start or not t2B.inv_start:
                 raise NotImplementedError("mid-path modes not yet supported")
             comp.type = "ft"
-            comp.t1pX = t1B.trans.X.prop + self.trans_center.X.prop
-            comp.t1pY = t1B.trans.Y.prop + self.trans_center.Y.prop
-            comp.t2pX = t2B.trans.X.prop
-            comp.t2pY = t2B.trans.Y.prop
+            # this one is always in loc == 'to'
+            if loc == 'fr':
+                comp.t1pX = t1B.trans.X.prop
+                comp.t1pY = t1B.trans.Y.prop
+                comp.t2pX = self.trans_center.X.prop + t2B.trans.X.prop
+                comp.t2pY = self.trans_center.Y.prop + t2B.trans.Y.prop
+            else:
+                comp.t1pX = t1B.trans.X.prop + self.trans_center.X.prop
+                comp.t1pY = t1B.trans.Y.prop + self.trans_center.Y.prop
+                comp.t2pX = t2B.trans.X.prop
+                comp.t2pY = t2B.trans.Y.prop
         elif t1B.type == "from" and t2B.type == "from":
             if t1B.inv_start or t2B.inv_start:
                 raise NotImplementedError("mid-path modes not yet supported")
             comp.type = "ff"
-            comp.t1pX = t1B.trans.X.prop
-            comp.t1pY = t1B.trans.Y.prop
-            comp.t2pX = t2B.trans.X.prop
-            comp.t2pY = t2B.trans.Y.prop
+            if loc == 'to':
+                comp.t1pX = t1B.trans.X.prop + self.trans_center.X.prop
+                comp.t1pY = t1B.trans.Y.prop + self.trans_center.Y.prop
+                comp.t2pX = t2B.trans.X.prop + self.trans_center.X.prop
+                comp.t2pY = t2B.trans.Y.prop + self.trans_center.Y.prop
+            else:
+                comp.t1pX = t1B.trans.X.prop
+                comp.t1pY = t1B.trans.Y.prop
+                comp.t2pX = t2B.trans.X.prop
+                comp.t2pY = t2B.trans.Y.prop
         elif t1B.type == "to" and t2B.type == "to":
             if not t1B.inv_start or not t2B.inv_start:
                 raise NotImplementedError("mid-path modes not yet supported")
             comp.type = "tt"
-            comp.t1pX = t1B.trans.X.prop
-            comp.t1pY = t1B.trans.Y.prop
-            comp.t2pX = t2B.trans.X.prop
-            comp.t2pY = t2B.trans.Y.prop
+            if loc == 'fr':
+                comp.t1pX = self.trans_center.X.prop + t1B.trans.X.prop
+                comp.t1pY = self.trans_center.Y.prop + t1B.trans.Y.prop
+                comp.t2pX = self.trans_center.X.prop + t2B.trans.X.prop
+                comp.t2pY = self.trans_center.Y.prop + t2B.trans.Y.prop
+            else:
+                comp.t1pX = t1B.trans.X.prop
+                comp.t1pY = t1B.trans.Y.prop
+                comp.t2pX = t2B.trans.X.prop
+                comp.t2pY = t2B.trans.Y.prop
         else:
             raise RuntimeError("Unrecognized directions (bug)")
 

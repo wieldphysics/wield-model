@@ -330,6 +330,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         waypoints=None,
         Wk=None,
         obj=None,
+        _just_center=False,
     ):
         Wk = self.fs.parameter_to_wk(Wk)
 
@@ -391,50 +392,54 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
 
         # target only approach
         if not oLp_path_center:
-            if target_fr is None and target_to is None:
-                raise RuntimeError(
-                    "Must specify from and to targets if no waypoint path is provided"
-                )
-            oLp_set_seq = []
+            if _just_center:
+                assert(len(ol_imed) == 1)
+                oLp_path_center = list(ol_imed)
+            else:
+                if target_fr is None and target_to is None:
+                    raise RuntimeError(
+                        "Must specify from and to targets if no waypoint path is provided"
+                    )
+                oLp_set_seq = []
 
-            # these should be included in the code below, rather than special-cased here
-            if target_fr is not None:
-                tspecB_fr = self._target_get(target_fr, Wk=Wk)
-                frB = Bunch()
-                targetsB_fr[target_fr] = frB
-                frB.tspecB = tspecB_fr
-                oLp_set_seq.append(tspecB_fr.oLp_set)
-                for ref in targets_fr[target_fr]:
-                    oLp_set_seq.append(self.bg.rAp2oLp_set(ref, obj=obj))
-                targets_fr.pop(target_fr)
+                # these should be included in the code below, rather than special-cased here
+                if target_fr is not None:
+                    tspecB_fr = self._target_get(target_fr, Wk=Wk)
+                    frB = Bunch()
+                    targetsB_fr[target_fr] = frB
+                    frB.tspecB = tspecB_fr
+                    oLp_set_seq.append(tspecB_fr.oLp_set)
+                    for ref in targets_fr[target_fr]:
+                        oLp_set_seq.append(self.bg.rAp2oLp_set(ref, obj=obj))
+                    targets_fr.pop(target_fr)
 
-            if ol_imed:
-                oLp_set_seq.append(ol_imed)
+                if ol_imed:
+                    oLp_set_seq.append(ol_imed)
 
-            # these should be included in the code below, rather than special-cased here
-            if target_to is not None:
-                tspecB_to = self._target_get(target_to, Wk=Wk)
-                toB = Bunch()
-                targetsB_to[target_to] = toB
-                toB.tspecB = tspecB_to
+                # these should be included in the code below, rather than special-cased here
+                if target_to is not None:
+                    tspecB_to = self._target_get(target_to, Wk=Wk)
+                    toB = Bunch()
+                    targetsB_to[target_to] = toB
+                    toB.tspecB = tspecB_to
 
-                for ref in targets_to[target_to]:
-                    oLp_set_seq.append(self.bg.rAp2oLp_set(ref, obj=obj))
-                targets_to.pop(target_to)
-                oLp_set_seq.append(tspecB_to.oLp_set)
+                    for ref in targets_to[target_to]:
+                        oLp_set_seq.append(self.bg.rAp2oLp_set(ref, obj=obj))
+                    targets_to.pop(target_to)
+                    oLp_set_seq.append(tspecB_to.oLp_set)
 
-            # print("SEQ", oLp_set_seq)
-            oLp_path_center = self._safe_oLp_path(oLp_set_seq)
+                # print("SEQ", oLp_set_seq)
+                oLp_path_center = self._safe_oLp_path(oLp_set_seq)
 
-            # these should be included in the code below, rather than special-cased here
-            if target_fr is not None:
-                frB.oLp_path = [oLp_path_center[0]]
-                frB.include_center = False
-                frB.inv_start = False
-            if target_to is not None:
-                toB.oLp_path = [oLp_path_center[-1]]
-                toB.include_center = True
-                toB.inv_start = True
+                # these should be included in the code below, rather than special-cased here
+                if target_fr is not None:
+                    frB.oLp_path = [oLp_path_center[0]]
+                    frB.include_center = False
+                    frB.inv_start = False
+                if target_to is not None:
+                    toB.oLp_path = [oLp_path_center[-1]]
+                    toB.include_center = True
+                    toB.inv_start = True
 
         for t_fr, wp_fr in targets_fr.items():
             # TODO, currently from targets can only aim to the start of the path
@@ -558,32 +563,6 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             target1=target_fr,
             target2=target_to,
         )
-        return overlapper
-
-    # qX_fr.overlap_HG(qX_to) * qY_fr.overlap_HG(qY_to)
-
-    def overlap_beatnote(
-        self,
-        target1_fr,
-        target2_fr,
-        waypoints,
-        Wk=None,
-        obj=None,
-    ):
-        """
-        targets_fr is either a list/tuple/set of target names or a dictionary
-        of {target: [waypoints]}.
-        """
-
-        overlapper = self.overlap_complete(
-            self,
-            target_fr=target1_fr,
-            targets_fr=[target1_fr, target2_fr],
-            waypoints=waypoints,
-            Wk=Wk,
-            obj=obj,
-        )
-        overlapper.set_targets(target1_fr, target2_fr)
         return overlapper
 
 

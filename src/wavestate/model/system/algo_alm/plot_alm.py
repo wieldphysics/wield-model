@@ -674,6 +674,18 @@ class OverlapperPlotter(object):
         target_handles=None,
         group_full=False,
         labelgroup=None,
+        target1_kw=dict(
+            s=25,
+            marker="+",
+        ),
+        target2_kw=dict(
+            s=25,
+            marker="x",
+        ),
+        target12_kw=dict(
+            s=16,
+            marker=".",
+        )
     ):
         transverse = transverse.lower()
         assert transverse in ["x", "y", ""]
@@ -683,10 +695,8 @@ class OverlapperPlotter(object):
 
         if labelT1 is not None:
             labelT1 = overlapper.target1
-        labelT1_orig = labelT1
         if labelT2 is not None:
             labelT2 = overlapper.target2
-        labelT2_orig = labelT2
 
         if axQ is None and axLG is None:
             if axB is None:
@@ -696,7 +706,7 @@ class OverlapperPlotter(object):
             axQ.grid(b=True, alpha=0.2)
             axLG.grid(b=True, alpha=0.2)
 
-        calc = overlapper.compile_overlap_calculation()
+        calc = overlapper.compile_overlap_calculation(loc="to")
         pbg_orig = overlapper.pbg
         pbg = pbg_orig.copy()
 
@@ -885,52 +895,62 @@ class OverlapperPlotter(object):
         if axQ is not None:
             if transverse == "x":
                 if overlapper.target1 is not None:
-                    pointsB1 = plot_points(
-                        ax=axQ,
-                        X=1 / qB.t1qX.R,
-                        Y=qB.t1qX.W * 1e3,
-                        color=color,
-                        label=labelT1,
-                        s=25,
-                        marker="+",
-                    )
-                    labelT1 = None
-                    color = pointsB1.color
+                    if target1_kw is not None:
+                        pointsB1 = plot_points(
+                            ax=axQ,
+                            X=1 / qB.t1qX.R,
+                            Y=qB.t1qX.W * 1e3,
+                            color=color,
+                            label=labelT1,
+                            **target1_kw,
+                        )
+                        labelT1 = None
+                        color = pointsB1.color
+                    else:
+                        pointsB1 = None
                 if overlapper.target2 is not None:
-                    pointsB2 = plot_points(
-                        ax=axQ,
-                        X=1 / qB.t2qX.R,
-                        Y=qB.t2qX.W * 1e3,
-                        color=color,
-                        label=labelT2,
-                        marker="x",
-                    )
-                    labelT2 = None
-                    color = pointsB2.color
+                    if target2_kw is not None:
+                        pointsB2 = plot_points(
+                            ax=axQ,
+                            X=1 / qB.t2qX.R,
+                            Y=qB.t2qX.W * 1e3,
+                            color=color,
+                            label=labelT2,
+                            **target2_kw,
+                        )
+                        labelT2 = None
+                        color = pointsB2.color
+                    else:
+                        pointsB2 = None
             else:
                 if overlapper.target1 is not None:
-                    pointsB1 = plot_points(
-                        ax=axQ,
-                        X=1 / qB.t1qY.R,
-                        Y=qB.t1qY.W * 1e3,
-                        color=color,
-                        label=labelT1,
-                        s=25,
-                        marker="+",
-                    )
-                    labelT1 = None
-                    color = pointsB1.color
+                    if target1_kw is not None:
+                        pointsB1 = plot_points(
+                            ax=axQ,
+                            X=1 / qB.t1qY.R,
+                            Y=qB.t1qY.W * 1e3,
+                            color=color,
+                            label=labelT1,
+                            **target1_kw,
+                        )
+                        labelT1 = None
+                        color = pointsB1.color
+                    else:
+                        pointsB1 = None
                 if overlapper.target2 is not None:
-                    pointsB2 = plot_points(
-                        ax=axQ,
-                        X=1 / qB.t2qY.R,
-                        Y=qB.t2qY.W * 1e3,
-                        color=color,
-                        label=labelT2,
-                        marker="x",
-                    )
-                    labelT2 = None
-                    color = pointsB2.color
+                    if target2_kw is not None:
+                        pointsB2 = plot_points(
+                            ax=axQ,
+                            X=1 / qB.t2qY.R,
+                            Y=qB.t2qY.W * 1e3,
+                            color=color,
+                            label=labelT2,
+                            **target2_kw,
+                        )
+                        labelT2 = None
+                        color = pointsB2.color
+                    else:
+                        pointsB2 = None
 
         if axLG is not None:
             # olap_00X, olap_02X = qB.t1qX.overlap_LG_2mode(qB.t2qX)
@@ -943,15 +963,17 @@ class OverlapperPlotter(object):
                     olap_00, olap_02 = qB.t1qX.overlap_LG_2mode(qB.t2qX)
                 else:
                     olap_00, olap_02 = qB.t1qY.overlap_LG_2mode(qB.t2qY)
-                pointsB12 = plot_points(
-                    ax=axLG,
-                    X=olap_02.real,
-                    Y=olap_02.imag,
-                    color=color,
-                    s=16,
-                    marker=".",
-                )
-                color = pointsB12.color
+                if target12_kw is not None:
+                    pointsB12 = plot_points(
+                        ax=axLG,
+                        X=olap_02.real,
+                        Y=olap_02.imag,
+                        color=color,
+                        **target12_kw,
+                    )
+                    color = pointsB12.color
+                else:
+                    pointsB12 = None
 
         if include_limits:
             if axQ is not None:
@@ -969,7 +991,14 @@ class OverlapperPlotter(object):
         if include_contour:
             if axQ is not None:
                 Qref = None
-                if transverse == "x":
+                if isinstance(include_contour, str):
+                    targB = overlapper[include_contour]
+                    if transverse == "x":
+                        Qref = targB.qXend
+                    else:
+                        Qref = targB.qYend
+
+                elif transverse == "x":
                     if overlapper.target2 is not None and qB.t2qX.W.shape == ():
                         Qref = qB.t2qX
                     elif overlapper.target1 is not None and qB.t1qX.W.shape == ():
@@ -987,6 +1016,7 @@ class OverlapperPlotter(object):
                         np.linspace(xmin, xmax, 200),
                         np.linspace(ymin, ymax, 200) / 1e3,
                     )
+                    #TODO fix this wavelength_m
                     Qplot = alm.ComplexBeamParam.from_W_R(
                         Y_W, 1 / X_iR, wavelength_m=1064e-9
                     )
@@ -1050,30 +1080,30 @@ class OverlapperPlotter(object):
 
         if target_handles is not None:
             if label1_orig is not None:
-                if handlesB.B1.line1 is not None:
+                if handlesB.B1 is not None and handlesB.B1.line1 is not None:
                     target_handles[4, label1_orig].append(handlesB.B1.line1)
-                elif handlesB.B2.line1 is not None:
+                elif handlesB.B2 is not None and handlesB.B2.line1 is not None:
                     target_handles[4, label1_orig].append(handlesB.B2.line1)
-                elif handlesB.B12.line1 is not None:
+                elif handlesB.B12 is not None and handlesB.B12.line1 is not None:
                     target_handles[4, label1_orig].append(handlesB.B12.line1)
             if label2_orig is not None:
-                if handlesB.B1.line2 is not None:
+                if handlesB.B1 is not None and handlesB.B1.line2 is not None:
                     target_handles[5, label2_orig].append(handlesB.B1.line2)
-                elif handlesB.B2.line2 is not None:
+                elif handlesB.B2 is not None and handlesB.B2.line2 is not None:
                     target_handles[5, label2_orig].append(handlesB.B2.line2)
-                elif handlesB.B12.line2 is not None:
+                elif handlesB.B12 is not None and handlesB.B12.line2 is not None:
                     target_handles[5, label2_orig].append(handlesB.B12.line2)
-            if handlesB.B1.points is not None:
+            if handlesB.B1 is not None and handlesB.B1.points is not None:
                 target_handles[1, overlapper.target1].append(handlesB.B1.points)
                 if group_full:
                     target_handles[4, label1_orig].append(handlesB.B1.points)
                     target_handles[5, label2_orig].append(handlesB.B1.points)
-            if handlesB.B2.points is not None:
+            if handlesB.B2 is not None and handlesB.B2.points is not None:
                 target_handles[2, overlapper.target2].append(handlesB.B2.points)
                 if group_full:
                     target_handles[4, label1_orig].append(handlesB.B2.points)
                     target_handles[5, label2_orig].append(handlesB.B2.points)
-            if handlesB.B12.points is not None:
+            if handlesB.B12 is not None and handlesB.B12.points is not None:
                 target_handles[
                     3,
                     "overlap {}\nwith {}".format(

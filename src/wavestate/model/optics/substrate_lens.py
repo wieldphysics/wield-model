@@ -237,6 +237,7 @@ class SubstrateLens(base.OpticalObject):
                 depth_m = p["depth[m]"]
                 ROC_B_m = p["ROC_B[m]"]
                 AOI_rad = p["AOI[deg]"] * np.pi / 180
+                M_D, M_t, M_t_i = M_side(p)
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
 
                 matrixBI = alm.interface_ROC_AOI_Y(
