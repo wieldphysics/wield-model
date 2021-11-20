@@ -19,13 +19,16 @@ from wavestate import model
 from wavestate.model.system import algo_bg
 from wavestate.model.system import algo_freq
 from wavestate.model.system import algo_phys
+
 from wavestate.model.system import algo_graphs
 
 from wavestate.model.system import algo_log
 from wavestate.pytest import Timer
 
-pytestmark = pytest.mark.xfail(reason="all tests still WIP")
+# needed by algo_graphs
+pygraphviz = pytest.importorskip('pygraphviz')
 
+pytestmark = pytest.mark.xfail(reason="all tests still WIP")
 
 def system_build():
     obj_sys = model.system1064()
@@ -111,8 +114,6 @@ def test_fabry_perot_DC(tpath):
 
     ga.graph_bond_graph(path.join(tpath, "test_bg.pdf"))
     ga.graph_DC_link_matrix(path.join(tpath, "test_DC_LM.pdf"))
-    # from icecream import ic
-    # ic(edges)
     nmap, SREIO = pa.dc.SREIO_DC(
         map_nodes=True,
         subtract_1=True,
@@ -150,9 +151,6 @@ def test_fabry_perot_DC_matrix(tpath):
     pa = algo_phys.PhysicsAlgorithm(obj_sys)
     # ga = algo_graphs.GraphPlottingAlgorithm(pa)
 
-    # from icecream import ic
-    # ic(edges)
-
     from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
 
     nmap, SREIO = pa.dc.SREIO_DC(
@@ -175,7 +173,7 @@ def test_fabry_perot_DC_matrix(tpath):
 
 
 @pytest.mark.skip
-def test_FP_DC_noise(ic, tpath):
+def test_FP_DC_noise(tpath):
     print()
     log = algo_log.LoggingAlgorithm(
         log_level=9,

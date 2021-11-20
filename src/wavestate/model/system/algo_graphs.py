@@ -12,7 +12,10 @@
 # import collections
 # import numpy as np
 
-import pygraphviz as pgv
+try:
+    import pygraphviz as pgv
+except ImportError:
+    pass
 
 
 class GraphPlottingAlgorithm(object):

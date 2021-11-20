@@ -7,9 +7,6 @@
 # with details inline in source files, comments, and docstrings.
 """
 """
-
-# import numpy as np
-# import pytest
 from os import path
 
 
@@ -19,7 +16,7 @@ from wavestate.model.system import algo_phys
 from wavestate.model.system import algo_graphs
 from wavestate.model.system import algo_log
 
-from wavestate.pytest import tpath, ic, pprint
+from wavestate.pytest import tpath, dprint
 
 
 def system_build():

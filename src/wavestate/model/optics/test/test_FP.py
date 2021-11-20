@@ -10,20 +10,23 @@
 
 import numpy as np
 import pytest
-from icecream import ic
 
-
+from wavestate import model
 from wavestate.model import pgraph
 from wavestate.model import optics
 from wavestate.model import base
-from wavestate.model import model
+
 from wavestate.model.system import algo_bg
 from wavestate.model.system import algo_freq
 from wavestate.model.system import algo_phys
 from wavestate.model.system import algo_graphs
 
 from wavestate.model.system import algo_log
-from wavestate.pytest import relfile_test
+
+from wavestate.pytest.fixtures import (
+    tpath_join,
+    plot,
+)
 
 pytestmark = pytest.mark.xfail(reason="all tests still WIP")
 
@@ -71,11 +74,9 @@ def test_FP_DC(algo_log):
 
 
 # @pytest.mark.skip()
-def test_FP_DC_scan(plot):
-    fpath = relfile_test(__file__, "plots")
+def test_FP_DC_scan(plot, tpath_join, algo_log):
     log = algo_log.LoggingAlgorithm(
         log_level=9,
-        log_folder=fpath,
         filters={
             # r'digraph' : dict(investigate = True),
         },
@@ -110,16 +111,14 @@ def test_FP_DC_scan(plot):
         # axB.ax3.matshow(ikm_dense != 0)
         from os import path
 
-        axB.save(path.join(fpath, "testFP_PDH.pdf"))
+        axB.save(tpath_join("testFP_PDH.pdf"))
     else:
         print("use --plot to plot")
 
 
-def test_FP_AC(plot):
-    fpath = relfile_test(__file__, "plots")
+def test_FP_AC(plot, tpath_join):
     log = algo_log.LoggingAlgorithm(
         log_level=9,
-        log_folder=fpath,
         filters={
             r"digraph": dict(investigate=True),
         },
@@ -160,9 +159,7 @@ def test_FP_AC(plot):
             np.angle(pa.ac("M1+Dl", "REFL+Wpd", demod="RF9", quadrature="Q"), deg=True),
         )
         # axB.ax3.matshow(ikm_dense != 0)
-        from os import path
-
-        axB.save(path.join(fpath, "testFP_AC.pdf"))
+        axB.save(tpath_join("testFP_AC.pdf"))
     else:
         print("use --plot to plot")
 
