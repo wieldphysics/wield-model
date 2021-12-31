@@ -9,7 +9,7 @@
 """
 
 import numpy as np
-from wavestate import declarative
+from wavestate.bunch import Bunch
 
 
 class MMTransporter(object):
@@ -21,7 +21,24 @@ class MMTransporter(object):
         inc,
         prop_ol2idx,
         inc_ol2idx,
+        shifts,
     ):
+        """
+        shifts is a list of bunch elements with 
+
+        Bunch(
+            idx_inc=len(Xinc),
+            idx_prop=len(Xprop),
+            name=name,
+            obj=obj,
+            shift=shift,
+        )
+        where idxXprop is the index into the prop list that the shift applies.
+        name is the shift type, obj is the object it applies to.
+        shift is a 2-vector with the shift derivative. The units should be understood
+        from the name, such as
+        [0; 2] would be the beam angle change in rad from rad of optic/mirror tilt.
+        """
         self.oLp_path = oLp_path
         self.Wk = Wk
         self.prop = prop
@@ -38,13 +55,74 @@ class MMTransporter(object):
             len_inc += len_m
             build_mat.append(mat_inc)
             build_len.append(len_inc)
+        # these are the incrementally built propation matrices
         self.inc_build_mat = build_mat
         self.inc_build_len = build_len
+        self.shifts = shifts
+
+    _shifts_in_referred = None
+    @property
+    def shifts_in_referred(self):
+        """
+        Collects the list of shifts through the transporter and casts them all to be
+        at the input of the transport. If the same shift occurs multiple times,
+        it is co-added.
+        """
+        if self._shifts_in_referred is None:
+            _shifts_in_referred = {}
+            for sB in self.shifts:
+                M = self.inc_build_mat[sB.idx_inc]
+                shift = np.linalg.inv(M) @ sB.shift
+                shift_prev = _shifts_in_referred.setdefault((sB.obj, sB.name), shift)
+                if shift_prev is not shift:
+                    _shifts_in_referred[(sB.obj, sB.name)] = shift_prev + shift
+
+            self._shifts_in_referred = _shifts_in_referred
+        return self._shifts_in_referred
+
+    _shifts_out_referred = None
+    @property
+    def shifts_out_referred(self):
+        """
+        Collects the list of shifts through the transporter and casts them all to be
+        at the output of the transport. If the same shift occurs multiple times,
+        it is co-added.
+        """
+        if self._shifts_out_referred is None:
+            _shifts_out_referred = {}
+            for sB in self.shifts:
+                M = self.inc_build_mat[sB.idx_inc]
+                shift = self.inc_build_mat[-1] @ np.linalg.inv(M) @ sB.shift
+                shift_prev = _shifts_out_referred.setdefault((sB.obj, sB.name), shift)
+                if shift_prev is not shift:
+                    _shifts_out_referred[(sB.obj, sB.name)] = shift_prev + shift
+            self._shifts_out_referred = _shifts_out_referred
+        return self._shifts_out_referred
+
+    def shifts_out(self, shifts_in, include_own = True):
+        """
+        Takes the shift_in dictionary and applies this path transporter, adding its own shifts along the way
+        """
+        shifts_out = {}
+        for shift_key, shift in shifts_in.items():
+            shift = self.inc_build_mat[-1] @ shift
+            # doesn't need  to check for an alias, since the input can't have any
+            shifts_out[shift_key] = shift
+        if include_own:
+            for sB in self.shifts:
+                M = self.inc_build_mat[sB.idx_inc]
+                shift = self.inc_build_mat[-1] @ np.linalg.inv(M) @ sB.shift
+                # use shift_prev to check for an alias with an existing shift
+                shift_prev = shifts_out.setdefault((sB.obj, sB.name), shift)
+                if shift_prev is not shift:
+                    shifts_out[(sB.obj, sB.name)] = shift_prev + shift
+        return shifts_out
 
     @property
     def full_trip_mat(self):
-        if not self.inc_build_mat:
-            return np.eye(2)
+        """
+        Returns the matrix for the entire transport chain
+        """
         return self.inc_build_mat[-1]
 
     @property
@@ -70,6 +148,9 @@ class MMTransporter(object):
         return mat_inc
 
     def ol2z(self, ol):
+        """
+        Returns the path length distance z for a given object-link (ol)
+        """
         if isinstance(ol, (tuple, list)):
             d = dict()
             for _ol in ol:
@@ -82,6 +163,9 @@ class MMTransporter(object):
             return self.inc_build_len[self.inc_ol2idx[ol]]
 
     def z2mat(self, Z):
+        """
+        Creates the beam propation up to a given Z value
+        """
         Z = np.asarray(Z)
         Zorig = Z
         if Z.shape == ():

@@ -152,6 +152,10 @@ class ThinMirror(base.OpticalObject):
 
         manip.set_Xincremental([(0, None, p_builder_X(manip.p))])
         manip.set_Yincremental([(0, None, p_builder_Y(manip.p))])
+
+        # TODO, determine signs
+        manip.set_Xshifts('yaw[rad]', matrix_stack([[0], [2]]))
+        manip.set_Yshifts('pitch[rad]', matrix_stack([[0], [2]]))
         return
 
     def visit_mm_anno_description(self, pbg, view, descB):

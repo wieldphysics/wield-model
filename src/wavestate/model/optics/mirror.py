@@ -364,7 +364,6 @@ class MirrorBase(base.OpticalObject):
                     (0, None, matrixIB_Y),
                 ]
             )
-
             # the P-builders are for fast optimization solving
             def p_builder_X(p):
                 ROC_A_m = p["ROC[m]"]
@@ -506,6 +505,10 @@ class MirrorBase(base.OpticalObject):
 
             manip.set_Xincremental([(0, None, p_builder_X(manip.p))])
             manip.set_Yincremental([(0, None, p_builder_Y(manip.p))])
+
+            # TODO, determine signs
+            manip.set_Xshifts('yaw[rad]', matrix_stack([[0], [2]]))
+            manip.set_Yshifts('pitch[rad]', matrix_stack([[0], [2]]))
         elif lport_fr_to in [("B!i", "B!o"), ("B1!i", "B2!o"), ("B2!i", "B1!o")]:
             # BB reflection
             # TODO, include astigmatism and defocus for X and Y
@@ -563,6 +566,11 @@ class MirrorBase(base.OpticalObject):
             manip.set_Zpropagator(
                 {"depth[m]": (2 / np.cos(AOI_rad * n_A / n_I), "AOI[deg]")}
             )
+
+            # TODO, determine signs
+            manip.set_Xshifts('yaw[rad]', matrix_stack([[0], [-2]]))
+            manip.set_Yshifts('pitch[rad]', matrix_stack([[0], [-2]]))
+
         return
 
     def visit_mm_anno_description(self, pbg, view, descB):

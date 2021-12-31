@@ -29,6 +29,7 @@ class ModeMatchingOverlapper(object):
         Wk,
         branching,
         pbg=None,
+        shifts_use=False,
     ):
         self.pa = algo_pa
         self.mm = algo_mm
@@ -39,26 +40,40 @@ class ModeMatchingOverlapper(object):
         self.target2 = None
         self.Wk = Wk
         self.branching = branching
+        self.shifts_use = shifts_use
 
         if pbg is None:
             self.pbg = self.mm.pbg
         else:
             self.pbg = pbg
 
-        self.trans_center = self.mm._path_transporters(self.oLp_path_center, Wk=Wk)
+        self.trans_center = self.mm._path_transporters(self.oLp_path_center, Wk=Wk, shifts_use=shifts_use)
 
         def setup_refer_to_start(tB, direction):
             tB_new = Bunch()
             if tB.inv_start:
-                tB_new.targB = self.mm._target_complete(tB.tspecB, ol=tB.oLp_path[-1])
+                tB_new.targB = self.mm._target_complete(tB.tspecB, ol=tB.oLp_path[-1], shifts_use=shifts_use)
             else:
-                tB_new.targB = self.mm._target_complete(tB.tspecB, ol=tB.oLp_path[0])
-            tB_new.trans = self.mm._path_transporters(tB.oLp_path, Wk=Wk)
+                tB_new.targB = self.mm._target_complete(tB.tspecB, ol=tB.oLp_path[0], shifts_use=shifts_use)
+
+            if tB.inv_start:
+                # TODO, allow reverse shifts
+                shiftsX = {}
+                shiftsY = {}
+            else:
+                shiftsX = tB_new.targB.cav_shiftX
+                shiftsY = tB_new.targB.cav_shiftY
+
+            tB_new.trans = self.mm._path_transporters(tB.oLp_path, Wk=Wk, shifts_use=shifts_use)
             matXfr = tB_new.trans.X.full_trip_mat
             matYfr = tB_new.trans.Y.full_trip_mat
             if tB.inv_start:
                 matXfr = np.linalg.inv(matXfr)
                 matYfr = np.linalg.inv(matYfr)
+            else:
+                shiftsX = tB_new.trans.X.shifts_out(shiftsX)
+                shiftsY = tB_new.trans.Y.shifts_out(shiftsY)
+
             tB_new.inv_start = tB.inv_start
             tB_new.type = direction
             if direction == "from":
@@ -73,6 +88,13 @@ class ModeMatchingOverlapper(object):
             tB_new.qY = tB_new.targB.qY.propagate_matrix(matYfr)
             tB_new.qXend = tB_new.qX.propagate_matrix(self.trans_center.X.full_trip_mat)
             tB_new.qYend = tB_new.qY.propagate_matrix(self.trans_center.Y.full_trip_mat)
+
+            if not tB.inv_start:
+                shiftsX = self.trans_center.X.shifts_out(shiftsX)
+                shiftsY = self.trans_center.Y.shifts_out(shiftsY)
+
+            tB_new.shiftsXend = shiftsX
+            tB_new.shiftsYend = shiftsY
             return tB_new
 
         transB_fr = dict()
@@ -120,7 +142,7 @@ class ModeMatchingOverlapper(object):
             frB = self.transB_fr[target]
             toB_new = Bunch()
             # makes a null transfer
-            toB_new.trans = self.mm._path_transporters([], Wk=self.Wk)
+            toB_new.trans = self.mm._path_transporters([], Wk=self.Wk, shifts_use=self.shifts_use)
             qX = frB.qX.propagate_matrix(self.trans_center.X.full_trip_mat)
             qY = frB.qY.propagate_matrix(self.trans_center.Y.full_trip_mat)
             toB_new.qX = qX
@@ -138,7 +160,7 @@ class ModeMatchingOverlapper(object):
             self.target1 = name
             frB_new = Bunch()
             # makes a null transfer
-            frB_new.trans = self.mm._path_transporters([], Wk=self.Wk)
+            frB_new.trans = self.mm._path_transporters([], Wk=self.Wk, shifts_use=self.shifts_use)
             qX = toB.qX
             qY = toB.qY
             frB_new.qX = qX
@@ -184,6 +206,10 @@ class ModeMatchingOverlapper(object):
         return self.trans_center.X.full_trip_length
 
     def __getitem__(self, tname):
+        """
+        Indexing the overlapper by a target name
+        returns the bunch containing the target information
+        """
         ret = self.transB_fr.get(tname, None)
         if ret is not None:
             return ret

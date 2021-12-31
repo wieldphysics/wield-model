@@ -17,6 +17,7 @@ from ...optics import alm
 
 from . import algo_mm_linkages
 from . import mm_optimize
+from .. import algo_tups
 
 
 class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
@@ -182,7 +183,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         objpath = self.bg.oLp_path2objpath(link_seq, as_refs=True)
         return objpath
 
-    def _cavity_params(self, target_name, ol, Wk):
+    def _cavity_params(self, target_name, ol, Wk, shifts_use=False):
         target_oP = self.pbg.referred_vtup(target_name)
         # print(oP)
         cav_path = self.cavity_targets[target_oP]
@@ -191,13 +192,24 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         # to form the full loop
         path = cav_path[idx:] + cav_path[:idx] + [cav_path[idx]]
 
-        trans = self._path_transporters(path, Wk)
+        trans = self._path_transporters(path, Wk, shifts_use=shifts_use)
 
         matX = trans.X.full_trip_mat
         matY = trans.Y.full_trip_mat
 
         qX = alm.eigen_q(matX)
         qY = alm.eigen_q(matY)
+
+        eye = np.eye(2)
+        cav_shiftX = {}
+        for shift_key, shift in trans.X.shifts_out_referred.items():
+            shiftX = -np.linalg.inv(matX - eye) @ shift
+            cav_shiftX[shift_key] = shiftX
+        cav_shiftY = {}
+        for shift_key, shift in trans.Y.shifts_out_referred.items():
+            shiftY = -np.linalg.inv(matY - eye) @ shift
+            cav_shiftY[shift_key] = shiftY
+
         if not np.isfinite(abs(qX)) or not np.isfinite(abs(qY)):
             # TODO, include matrices in error message?
             mat_full_tot = np.eye(2)
@@ -218,6 +230,8 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             raise RuntimeError("Cavity {} is not stable".format(target_name))
         qX = alm.ComplexBeamParam(qX, wavelength_m=self.fs.wavelength_map[Wk])
         qY = alm.ComplexBeamParam(qY, wavelength_m=self.fs.wavelength_map[Wk])
+
+        # TODO, annotate target type to relate it to innate targets
         return Bunch(
             qX=qX,
             qY=qY,
@@ -228,9 +242,14 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             type="cavity",
             cavity_path=path,
             cavity_trans=trans,
+            cav_shiftX = cav_shiftX,
+            cav_shiftY = cav_shiftY,
         )
 
     def _target_get(self, target, Wk=None):
+        """
+        Get the basic form of target, but don't complete the target computations if it is a cavity
+        """
         target_oP = self.pbg.referred_vtup(target)
         cavB = self.cavity_targets.get(target_oP, None)
         if cavB is not None:
@@ -250,22 +269,34 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                 type="specified",
             )
 
-    def _target_complete(self, targB, ol):
+    def _target_complete(
+            self,
+            targB,
+            ol : algo_tups.ObjectLinkageTup,
+            shifts_use=False
+    ):
+        """
+        Take the cavity object and complete the remaining computations
+
+        ol is an ObjectLinkage tuple
+        """
         if targB.type == "cavity":
-            return self._cavity_params(targB.target, ol=ol, Wk=targB.Wk)
+            return self._cavity_params(targB.target, ol=ol, Wk=targB.Wk, shifts_use=shifts_use)
         elif targB.type == "specified":
             target_oP = self.pbg.referred_vtup(targB.target)
             return self._targets[target_oP]
 
-    def cavity_parameters(self, cavity_name, waypoint, Wk, obj=None):
+    def cavity_parameters(self, cavity_name, waypoint, Wk, obj=None, shifts_use=True):
         Wk = self.fs.parameter_to_wk(Wk)
         if isinstance(waypoint, tuple):
             wp = waypoint
         else:
             wp = self.bg.rAp2oLp_set(waypoint, obj=obj, dir="out").pop()
-        params = self._cavity_params(cavity_name, wp, Wk=Wk)
+
+        params = self._cavity_params(cavity_name, wp, Wk=Wk, shifts_use=shifts_use)
 
         return Bunch(
+            cavB=params,
             qX=params.qX,
             qY=params.qY,
             gouyX_deg=np.angle(
@@ -280,45 +311,46 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             ),
         )
 
-    def cavity_digest(self, Wk, waypoint=None):
-        for target, target_op in sorted(self.cavity_map.items()):
-            cavity_seq = self.cavity_targets[target_op]
+    def cavity_digest(self, Wk, waypoint=None, print=print):
+        with self.pbg.preferred():
+            for target, target_op in sorted(self.cavity_map.items()):
+                cavity_seq = self.cavity_targets[target_op]
 
-            def print_wp(cB, wp):
-                print("-------------")
-                print("-----", target, "  at  ", wp)
-                print(
-                    "         Gouy X,Y [deg]  {:.2f}, {:.2f}".format(
-                        cB.gouyX_deg, cB.gouyY_deg
-                    )
-                )
-                print(
-                    "         Gouy Frac {:.4f}, {:.4f}".format(
-                        (cB.gouyX_deg / 360 + 0.5) % 1 - 0.5,
-                        (cB.gouyY_deg / 360 + 0.5) % 1 - 0.5,
-                    )
-                )
-                if waypoint:
-                    print("         qX ", cB.qX)
-                    print("         qY ", cB.qY)
+                def print_wp(cB, wp):
+                    print("-------------")
+                    print("-----", target, "  at  ", wp)
                     print(
-                        "         diameter[m] X, Y ",
-                        alm.str_m(cB.qX.W * 2),
-                        alm.str_m(2 * cB.qY.W),
+                        "         Gouy X,Y [deg]  {:.2f}, {:.2f}".format(
+                            cB.gouyX_deg, cB.gouyY_deg
+                        )
                     )
+                    print(
+                        "         Gouy Frac {:.4f}, {:.4f}".format(
+                            (cB.gouyX_deg / 360 + 0.5) % 1 - 0.5,
+                            (cB.gouyY_deg / 360 + 0.5) % 1 - 0.5,
+                        )
+                    )
+                    if waypoint:
+                        print("         qX ", cB.qX)
+                        print("         qY ", cB.qY)
+                        print(
+                            "         diameter[m] X, Y ",
+                            alm.str_m(cB.qX.W * 2),
+                            alm.str_m(2 * cB.qY.W),
+                        )
 
-            if waypoint is None:
-                wp = cavity_seq[0]
-                cB = self.cavity_parameters(target, wp, Wk)
-                print_wp(cB, wp)
-            elif isinstance(waypoint, list):
-                for wp in waypoint:
+                if waypoint is None:
+                    wp = cavity_seq[0]
                     cB = self.cavity_parameters(target, wp, Wk)
                     print_wp(cB, wp)
-            else:
-                wp = waypoint
-                cB = self.cavity_parameters(target, wp, Wk)
-                print_wp(cB, wp)
+                elif isinstance(waypoint, list):
+                    for wp in waypoint:
+                        cB = self.cavity_parameters(target, wp, Wk)
+                        print_wp(cB, wp)
+                else:
+                    wp = waypoint
+                    cB = self.cavity_parameters(target, wp, Wk)
+                    print_wp(cB, wp)
         return
 
     def overlap(
@@ -330,8 +362,12 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         waypoints=None,
         Wk=None,
         obj=None,
+        shifts_use=False,
         _just_center=False,
     ):
+        """
+        Create an overlap objects
+        """
         Wk = self.fs.parameter_to_wk(Wk)
 
         if isinstance(waypoints, str):
@@ -558,6 +594,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             oLp_path_center=oLp_path_center,
             Wk=Wk,
             branching=branching,
+            shifts_use=shifts_use,
         )
         overlapper.set_targets(
             target1=target_fr,

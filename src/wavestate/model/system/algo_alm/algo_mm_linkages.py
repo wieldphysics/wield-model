@@ -29,13 +29,17 @@ class ModeMatchingLinkageAlgorithm(object):
         self.bg = pa.bg
         self.pa = pa
 
-        self._object_edges = collections.defaultdict(dict)
         self._build_MM_link_graph()
 
         self.SRE = self.SRE_linkage()
         return
 
     def _build_MM_link_graph(self):
+        # this dict is populated during the visitations
+        self._object_edges = collections.defaultdict(dict)
+
+        # visit all objects and apply the link manipulator
+        # to determine the graph
         for obj in self.pbg.object_iter():
             try:
                 visit_algo = obj.visit_mode_matching_linkage
@@ -55,6 +59,12 @@ class ModeMatchingLinkageAlgorithm(object):
         return
 
     def SRE_linkage(self):
+        """
+        Generates a graph with the sequence references, requirement references and a
+        dictionary of the edges.
+
+        Note! that the dictionary is (fr, to) pairs, it isn't (row, col) which is equivalent to (to, fr)
+        """
         seq = collections.defaultdict(set)
         req = collections.defaultdict(set)
         edges = dict()
@@ -82,7 +92,18 @@ class ModeMatchingLinkageAlgorithm(object):
         oLp1_group,
         oLp2_group,
     ):
-        """ """
+        """
+        Apply the Dijkstra algorithm to find the shortest
+        path from oLp1_group to oLp2_group
+
+        if oLp1_group is a mapping, then it is assumed to
+        carry weights. This allows the algorithm to run in
+        multiple passes by incrementing the weights
+
+        Multiple such passes enable using the algorithm to find
+        loops of minimal distance, which is useful for defining
+        cavities.
+        """
         seq, req, edges = self.SRE
 
         best_weights = dict()
@@ -173,10 +194,19 @@ class ModeMatchingLinkageAlgorithm(object):
             nonunique_shortest=nonunique_shortest,
         )
 
-    def _path_transporters(self, oLp_path, Wk):
+    def _path_transporters(
+        self,
+        oLp_path,
+        Wk,
+        shifts_use=True,
+    ):
+        """
+        Generate the transporter objects from a linkage path
+        """
         assert Wk is not None
         Wk = self.fs.parameter_to_wk(Wk)
 
+        # the null path case
         if not oLp_path:
             Xtransporter = mm_transporter.MMTransporter(
                 oLp_path=oLp_path,
@@ -205,12 +235,19 @@ class ModeMatchingLinkageAlgorithm(object):
         # is the final value of the transport-function
         Xinc = []
         Yinc = []
-
+        # propagation matrix to index
         Xprop_ol2idx = dict()
         Yprop_ol2idx = dict()
-        Zprop_ol2idx = dict()
+        # incremental X,Y matrix lists
         Xinc_ol2idx = dict()
         Yinc_ol2idx = dict()
+        # Z path location list
+        Zprop_ol2idx = dict()
+
+        # shift vector to index
+        # these apply after the Xinc list
+        Xshifts = []
+        Yshifts = []
 
         # holds the lengths used for path formation, or None for trivial linkage
         edges = self.SRE[2]
@@ -270,6 +307,26 @@ class ModeMatchingLinkageAlgorithm(object):
             Zprop_ol2idx[oLp_to] = len(Zprop_scales)
             Xinc_ol2idx[oLp_to] = len(Xinc)
             Yinc_ol2idx[oLp_to] = len(Yinc)
+
+            if shifts_use:
+                for (obj, name), shift in manip._Xshifts.items():
+                    Xshifts.append(Bunch(
+                        idx_prop=len(Xprop),
+                        idx_inc=len(Xinc),
+                        name=name,
+                        obj=obj,
+                        shift=shift,
+                    ))
+
+                for (obj, name), shift in manip._Yshifts.items():
+                    Yshifts.append(Bunch(
+                        idx_prop=len(Yprop),
+                        idx_inc=len(Yinc),
+                        name=name,
+                        obj=obj,
+                        shift=shift,
+                    ))
+
             # TODO, check that the total inc length equals the edge length
 
         Xtransporter = mm_transporter.MMTransporter(
@@ -279,19 +336,18 @@ class ModeMatchingLinkageAlgorithm(object):
             inc=Xinc,
             prop_ol2idx=Xprop_ol2idx,
             inc_ol2idx=Xinc_ol2idx,
+            shifts=Xshifts,
         )
 
-        if Xinc is Yinc:
-            Ytransporter = Xtransporter
-        else:
-            Ytransporter = mm_transporter.MMTransporter(
-                oLp_path=oLp_path,
-                Wk=Wk,
-                prop=Yprop,
-                inc=Yinc,
-                prop_ol2idx=Yprop_ol2idx,
-                inc_ol2idx=Yinc_ol2idx,
-            )
+        Ytransporter = mm_transporter.MMTransporter(
+            oLp_path=oLp_path,
+            Wk=Wk,
+            prop=Yprop,
+            inc=Yinc,
+            prop_ol2idx=Yprop_ol2idx,
+            inc_ol2idx=Yinc_ol2idx,
+            shifts=Xshifts,
+        )
 
         return Bunch(
             oLp_path=oLp_path,
@@ -431,6 +487,10 @@ class MMAlgorithmTransportManipulator(MMAlgorithmView):
     def __init__(self, mm_algo, lport_fr, lport_to, Wk, **kw):
         self.lport_fr = lport_fr
         self.lport_to = lport_to
+
+        self._Xshifts = {}
+        self._Yshifts = {}
+
         self.Wk = Wk
         super(MMAlgorithmTransportManipulator, self).__init__(mm_algo, **kw)
 
@@ -441,6 +501,9 @@ class MMAlgorithmTransportManipulator(MMAlgorithmView):
         return alm.substrates[substrate][self.Wk]
 
     def set_Zpropagator(self, prop=None):
+        """
+        This sets the z distance along the physical path
+        """
         if prop is None:
             self._Zprop = {}
         else:
@@ -456,6 +519,14 @@ class MMAlgorithmTransportManipulator(MMAlgorithmView):
 
     def set_Ypropagator(self, prop):
         self._Yprop = [prop]
+        return
+
+    def set_Xshifts(self, name, shift):
+        self._Xshifts[self._obj, name] = shift
+        return
+
+    def set_Yshifts(self, name, shift):
+        self._Yshifts[self._obj, name] = shift
         return
 
     def set_XYincremental(self, inc):
