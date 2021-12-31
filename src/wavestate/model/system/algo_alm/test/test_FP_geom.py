@@ -101,12 +101,13 @@ def T_linear_cavity_view(tpath_join, algo_log, plot, dprint):
         )
 
         cavB = overlapper['cavity/cav']
-        print(cavB.shiftsXend)
+        #print(cavB.shiftsXend)
         plB = overlapper.plot(
             tpath_join("linearM1.pdf"),
             # reverse = True,
             # self_overlap = True,
         )
+        print(overlapper.shifts_table_str())
 
         overlapper = pa.mm.overlap(
             target_fr=[
@@ -114,7 +115,7 @@ def T_linear_cavity_view(tpath_join, algo_log, plot, dprint):
             ],
             target_to=None,
             waypoints=[
-                "cavity/M1/",
+                "cavity/M2/",
                 "cavity/M0/",
             ],
             Wk=1064,
@@ -122,11 +123,14 @@ def T_linear_cavity_view(tpath_join, algo_log, plot, dprint):
         )
 
         cavB = overlapper['cavity/cav']
-        print(cavB.shiftsXend)
+        #print(cavB.shiftsXend)
         plB = overlapper.plot(
             tpath_join("linearM2.pdf"),
             # reverse = True,
             # self_overlap = True,
         )
+        #print(overlapper.shifts_table())
+        print(overlapper.shifts_table_str(var='pos'))
+        print(overlapper.shifts_table_str(var='ang'))
     return
 

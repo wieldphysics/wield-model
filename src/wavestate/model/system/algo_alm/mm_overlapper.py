@@ -688,3 +688,104 @@ class ModeMatchingOverlapper(object):
             diameters_list=diameters_list,
             diameters_str=diameters_str,
         )
+
+    def shifts_table(
+        self,
+        axis="y",
+        waists_target=None,
+    ):
+        waists_target = self.annotation_target(waists_target)
+        tB = self[waists_target]
+
+        shifts_pos = {}
+        shifts_ang = {}
+
+        if axis.lower() == "y":
+            trans_center = self.trans_center.Y
+        elif axis.lower() == "x":
+            trans_center = self.trans_center.X
+
+        # use the ol2idx mappings to determine which matrices to use based on the object locations within the path
+        # to use it, it must first be inverted
+        reverse_ol2idx = {}
+        for k, v in trans_center.inc_ol2idx.items():
+            l = reverse_ol2idx.setdefault(v, [])
+            l.append(k)
+        idxs = []
+        keys = []
+        
+        for idx, key in sorted(reverse_ol2idx.items()):
+            idxs.append(idx)
+            keys.append(key)
+
+        if axis.lower() == "y":
+            mats = np.array([self.trans_center.Y.inc_build_mat[i] for i in idxs]) @ np.linalg.inv(self.trans_center.Y.inc_build_mat[-1])
+            for shift_key, shift in tB.shiftsYend.items():
+                shifts = mats @ shift
+                shifts_pos[shift_key] = shifts[..., 0, 0]
+                shifts_ang[shift_key] = shifts[..., 1, 0]
+        elif axis.lower() == "x":
+            mats = np.array([self.trans_center.X.inc_build_mat[i] for i in idxs]) @ np.linalg.inv(self.trans_center.X.inc_build_mat[-1])
+            for shift_key, shift in tB.shiftsXend.items():
+                shifts = mats @ shift
+                shifts_pos[shift_key] = shifts[..., 0, 0]
+                shifts_ang[shift_key] = shifts[..., 1, 0]
+        else:
+            raise RuntimeError("Unrecognized Axis")
+
+        return Bunch(
+            shifts_keys = keys,
+            shifts_pos = shifts_pos,
+            shifts_ang = shifts_ang
+        )
+
+    def shifts_table_str(
+        self,
+        axis="y",
+        var="pos",
+        waists_target=None,
+    ):
+        """
+        Creates a table of the shifts from optic motions to and from cavities.
+
+        Currently it drops spaces in favor of non-space optics when forming the labels
+        TODO: make the optic naming better for the labels and headers of the table.
+        """
+        axis = axis.lower()
+        var = var.lower()
+        assert(axis in ['x', 'y'])
+        assert(var in ['pos', 'ang'])
+
+        sB = self.shifts_table(
+            axis = axis,
+            waists_target=waists_target,
+        )
+
+        if var == 'pos':
+            shifts = sB.shifts_pos
+        elif var == 'ang':
+            shifts = sB.shifts_ang
+
+        keys = sorted(shifts.keys())
+
+        vals = np.array([shifts[k] for k in keys]).T
+
+        self.trans_center.X
+
+        labels = []
+        for shift_key_list in sB.shifts_keys:
+            for sk in shift_key_list:
+                if isinstance(sk[0], optics.Space):
+                    continue
+                else:
+                    break
+            labels.append(str(sk))
+        return table(
+            vals,
+            headers=[str(k) for k in keys],
+            labels=labels,
+            diag=var,
+        )
+
+
+

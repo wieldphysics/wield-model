@@ -261,8 +261,25 @@ class ModeMatchingLinkageAlgorithm(object):
         for oLp_fr, oLp_to in path_pairs(oLp_path):
 
             edge = edges[oLp_fr, oLp_to]
+
             if edge is None:
+                # skip the edge, but update
+                # these mapping dictionaries
+                # this probably only helps the
+                # first and last oLp's of the path
+                Xprop_ol2idx[oLp_fr] = len(Xprop)
+                Yprop_ol2idx[oLp_fr] = len(Yprop)
+                Zprop_ol2idx[oLp_fr] = len(Zprop_scales)
+                Xinc_ol2idx[oLp_fr] = len(Xinc)
+                Yinc_ol2idx[oLp_fr] = len(Yinc)
+
+                Xprop_ol2idx[oLp_to] = len(Xprop)
+                Yprop_ol2idx[oLp_to] = len(Yprop)
+                Zprop_ol2idx[oLp_to] = len(Zprop_scales)
+                Xinc_ol2idx[oLp_to] = len(Xinc)
+                Yinc_ol2idx[oLp_to] = len(Yinc)
                 continue
+
             obj_fr = oLp_fr[0]
             obj_to = oLp_to[0]
             # only internal linkages can be nontrivial
