@@ -1,5 +1,12 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: © 2021 Massachusetts Institute of Technology.
+# SPDX-FileCopyrightText: © 2021 Lee McCuller <mcculler@mit.edu>
+# NOTICE: authors should document their contributions in concisely in NOTICE
+# with details inline in source files, comments, and docstrings.
+"""
+"""
 try:
     from collections.abc import Mapping as MappingABC
 except ImportError:
@@ -7,7 +14,8 @@ except ImportError:
 
 
 class FrequencyKey(object):
-    __slots__ = ('F_dict', '_cache_hash', '_cache_tup')
+    __slots__ = ("F_dict", "_cache_hash", "_cache_tup")
+
     def __init__(self, F_dict):
         self.F_dict = F_dict
 
@@ -30,7 +38,9 @@ class FrequencyKey(object):
             return self._cache_tup
         except AttributeError:
             pass
-        self._cache_tup = tuple(sorted((f, n) for f, n in list(self.F_dict.items()) if n != 0))
+        self._cache_tup = tuple(
+            sorted((f, n) for f, n in list(self.F_dict.items()) if n != 0)
+        )
         return self._cache_tup
 
     def __eq__(self, other):
@@ -41,7 +51,7 @@ class FrequencyKey(object):
     def __getitem__(self, Fname):
         return self.F_dict[Fname]
 
-    #def frequency(self):
+    # def frequency(self):
     #    F_sum = 0
     #    for Fname, n in list(self.F_dict.items()):
     #        if n != 0:
@@ -54,16 +64,16 @@ class FrequencyKey(object):
         flist = []
         for Fname, n in l:
             if n == 1:
-                flist.append('+' + Fname)
+                flist.append("+" + Fname)
             elif n == -1:
-                flist.append('-' + Fname)
+                flist.append("-" + Fname)
             elif n > 1:
-                flist.append('+' + str(n) + Fname)
+                flist.append("+" + str(n) + Fname)
             elif n < -1:
                 flist.append(str(n) + Fname)
         if not flist:
-            flist.append('0')
-        return ''.join(flist)
+            flist.append("0")
+        return "".join(flist)
 
     def __add__(self, other):
         F_dict = dict(self.F_dict)
@@ -99,4 +109,3 @@ class FrequencyKey(object):
             current_idx = self.F_dict[Fname]
             F_dict[Fname] = -current_idx
         return self.__class__(F_dict)
-

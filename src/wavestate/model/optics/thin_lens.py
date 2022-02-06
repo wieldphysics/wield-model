@@ -1,7 +1,13 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: © 2021 Massachusetts Institute of Technology.
+# SPDX-FileCopyrightText: © 2021 Lee McCuller <mcculler@mit.edu>
+# NOTICE: authors should document their contributions in concisely in NOTICE
+# with details inline in source files, comments, and docstrings.
 """
 """
-from __future__ import division, print_function, unicode_literals, absolute_import
+
 import numpy as np
 
 from wavestate.utilities.np import matrix_stack
@@ -13,14 +19,14 @@ class ThinLens(base.OpticalObject):
     def __init__(self):
         super(ThinLens, self).__init__()
         with self._internal():
-            self['focal_length[m]'] = None
-            self['defocus[D]']      = 0
-            self['annotate']        = 'Lens'
+            self["focal_length[m]"] = None
+            self["defocus[D]"] = 0
+            self["annotate"] = "Lens"
 
     def port_chain(self, p, pname):
         bmap = {
-            '+A-t' :  (None, '+B'),
-            '+B-t' :  (None, '+A'),
+            "+A-t": (None, "+B"),
+            "+B-t": (None, "+A"),
         }.get(pname, None)
 
         if bmap is not None:
@@ -30,78 +36,75 @@ class ThinLens(base.OpticalObject):
 
     @classmethod
     def visit_port_information(cls, manip):
-        manip.gen_optical_port('+A', 'A')
-        manip.gen_optical_port('+B', 'B')
+        manip.gen_optical_port("+A", "A")
+        manip.gen_optical_port("+B", "B")
         return
 
     def visit_matrix_algorithm_ACDC(self, manip):
-        manip.add_link('B!i', 'A!o', 1)
-        manip.add_link('A!i', 'B!o', 1)
+        manip.add_link("B!i", "A!o", 1)
+        manip.add_link("A!i", "B!o", 1)
         return
 
     def visit_mode_matching_linkage(self, manip):
-        manip.add_link('B!i', 'A!o', 0)
-        manip.add_link('A!i', 'B!o', 0)
+        manip.add_link("B!i", "A!o", 0)
+        manip.add_link("A!i", "B!o", 0)
         return
 
     def visit_mode_matching_transport(self, manip):
-        #the P-builders are for fast optimization solving
+        # the P-builders are for fast optimization solving
         def p_builderXY(p):
-            fl_m = p['focal_length[m]']
-            D = p['defocus[D]']
+            fl_m = p["focal_length[m]"]
+            D = p["defocus[D]"]
             if fl_m is None:
                 M = matrix_stack([[1, 0], [-D, 1]])
             else:
-                M = matrix_stack([[1, 0], [-1/fl_m - D, 1]])
+                M = matrix_stack([[1, 0], [-1 / fl_m - D, 1]])
             return M
 
         manip.set_XYpropagator(p_builderXY)
         manip.set_Zpropagator()
-        #manip.link_Xpropagator(p_builder)
-        #manip.link_Ypropagator(p_builder)
+        # manip.link_Xpropagator(p_builder)
+        # manip.link_Ypropagator(p_builder)
         matrix = p_builderXY(manip.p)
 
-        manip.set_XYincremental([
-            (0, None, matrix)
-        ])
+        manip.set_XYincremental([(0, None, matrix)])
         return
 
     def visit_mm_anno_description(self, pbg, view, descB):
         desc = []
 
-        def view_add(name, default, name2 = None, transform = lambda x: '{:.3f}'.format(x)):
+        def view_add(name, default, name2=None, transform=lambda x: "{:.3f}".format(x)):
             val = view[name]
             if val == default:
                 return
             if name2 is None:
                 name2 = name
-            desc.append(
-                "{}={}".format(name2, transform(val))
-            )
-        view_add('focal_length[m]', None, 'f', lambda x : alm.str_m(x, space=False))
-        view_add('defocus[D]', 0, 'defocus', lambda x : alm.str_D(x, space=False))
-        anno = view['annotate']
+            desc.append("{}={}".format(name2, transform(val)))
+
+        view_add("focal_length[m]", None, "f", lambda x: alm.str_m(x, space=False))
+        view_add("defocus[D]", 0, "defocus", lambda x: alm.str_D(x, space=False))
+        anno = view["annotate"]
         if anno is None:
-            return ', '.join(desc)
+            return ", ".join(desc)
         else:
-            return anno + ' ' + ', '.join(desc)
+            return anno + " " + ", ".join(desc)
 
 
 class ThinMirror(base.OpticalObject):
     def __init__(self):
         super(ThinMirror, self).__init__()
         with self._internal():
-            self['ROC[m]'] = None
-            self['AOI[deg]'] = 0
-            self['defocus[D]'] = 0
-            self['defocusX[D]'] = 0
-            self['defocusY[D]'] = 0
-            self['annotate'] = 'HRMirror'
+            self["ROC[m]"] = None
+            self["AOI[deg]"] = 0
+            self["defocus[D]"] = 0
+            self["defocusX[D]"] = 0
+            self["defocusY[D]"] = 0
+            self["annotate"] = "HRMirror"
 
     def port_chain(self, p, pname):
         bmap = {
-            '+A1-r' :  (None, '+A2'),
-            '+A2-r' :  (None, '+A1'),
+            "+A1-r": (None, "+A2"),
+            "+A2-r": (None, "+A1"),
         }.get(pname, None)
 
         if bmap is not None:
@@ -111,35 +114,35 @@ class ThinMirror(base.OpticalObject):
 
     @classmethod
     def visit_port_information(cls, manip):
-        manip.gen_optical_port('+A1', 'A1')
-        manip.gen_optical_port('+A2', 'A2')
+        manip.gen_optical_port("+A1", "A1")
+        manip.gen_optical_port("+A2", "A2")
         return
 
     def visit_matrix_algorithm_ACDC(self, manip):
-        manip.add_link('A1!i', 'A2!o', 1)
-        manip.add_link('A2!i', 'A1!o', 1)
+        manip.add_link("A1!i", "A2!o", 1)
+        manip.add_link("A2!i", "A1!o", 1)
         return
 
     def visit_mode_matching_linkage(self, manip):
-        manip.add_link('A1!i', 'A2!o', 0)
-        manip.add_link('A2!i', 'A1!o', 0)
+        manip.add_link("A1!i", "A2!o", 0)
+        manip.add_link("A2!i", "A1!o", 0)
         return
 
     def visit_mode_matching_transport(self, manip):
-        #the P-builders are for fast optimization solving
+        # the P-builders are for fast optimization solving
         def p_builder_X(p):
-            roc_m = p['ROC[m]']
-            AOI_rad = p['AOI[deg]'] / 180 * np.pi
+            roc_m = p["ROC[m]"]
+            AOI_rad = p["AOI[deg]"] / 180 * np.pi
             M = alm.REFL_ROC_X(roc_m, AOI_rad)
-            D = p['defocus[D]'] + p['defocusX[D]']
+            D = p["defocus[D]"] + p["defocusX[D]"]
             MD = matrix_stack([[1, 0], [D, 1]])
             return MD @ M
 
         def p_builder_Y(p):
-            roc_m = p['ROC[m]']
-            AOI_rad = p['AOI[deg]'] / 180 * np.pi
+            roc_m = p["ROC[m]"]
+            AOI_rad = p["AOI[deg]"] / 180 * np.pi
             M = alm.REFL_ROC_Y(roc_m, AOI_rad)
-            D = p['defocus[D]'] + p['defocusY[D]']
+            D = p["defocus[D]"] + p["defocusY[D]"]
             MD = matrix_stack([[1, 0], [D, 1]])
             return MD @ M
 
@@ -149,30 +152,38 @@ class ThinMirror(base.OpticalObject):
 
         manip.set_Xincremental([(0, None, p_builder_X(manip.p))])
         manip.set_Yincremental([(0, None, p_builder_Y(manip.p))])
+
+        # TODO, determine signs
+        manip.set_Xshifts('yaw[rad]', matrix_stack([[0], [2]]))
+        manip.set_Yshifts('pitch[rad]', matrix_stack([[0], [2]]))
         return
 
     def visit_mm_anno_description(self, pbg, view, descB):
         desc = []
 
-        def view_add(name, default, name2 = None, transform = lambda x: '{:.3f}'.format(x)):
+        def view_add(name, default, name2=None, transform=lambda x: "{:.3f}".format(x)):
             val = view[name]
             if val == default:
                 return
             if name2 is None:
                 name2 = name
-            desc.append(
-                "{}={}".format(name2, transform(val))
-            )
-        view_add('ROC[m]', None, 'ROC', lambda x : alm.str_m(x, space=False))
-        view_add('defocus[D]', 0, 'defocus', lambda x : alm.str_D(x, space=False))
+            desc.append("{}={}".format(name2, transform(val)))
+
+        view_add("ROC[m]", None, "ROC", lambda x: alm.str_m(x, space=False))
+        view_add("defocus[D]", 0, "defocus", lambda x: alm.str_D(x, space=False))
         if desc:
-            #only add if there is some focus
-            view_add('AOI[deg]', 0, 'AOI', lambda x: alm.unit_str(x, d=2, unit = 'deg', space = False))
-        anno = view['annotate']
+            # only add if there is some focus
+            view_add(
+                "AOI[deg]",
+                0,
+                "AOI",
+                lambda x: alm.unit_str(x, d=2, unit="deg", space=False),
+            )
+        anno = view["annotate"]
         if anno is None:
-            return ', '.join(desc)
+            return ", ".join(desc)
         else:
-            return anno + ' ' + ', '.join(desc)
+            return anno + " " + ", ".join(desc)
 
 
 class ThinLensTranslation(base.OpticalObject):
@@ -180,17 +191,18 @@ class ThinLensTranslation(base.OpticalObject):
     This Element represents a translation correction to a thin lens element.
     Can be used to show translation adjustments to existing lenses or collimators
     """
+
     def __init__(self):
         super(ThinLensTranslation, self).__init__()
         with self._internal():
-            self['focal_length[m]'] = None
-            self['shift[m]']        = None
-            self['annotate']        = 'ShiftLens'
+            self["focal_length[m]"] = None
+            self["shift[m]"] = None
+            self["annotate"] = "ShiftLens"
 
     def port_chain(self, p, pname):
         bmap = {
-            '+A-t' :  (None, '+B'),
-            '+B-t' :  (None, '+A'),
+            "+A-t": (None, "+B"),
+            "+B-t": (None, "+A"),
         }.get(pname, None)
 
         if bmap is not None:
@@ -200,64 +212,59 @@ class ThinLensTranslation(base.OpticalObject):
 
     @classmethod
     def visit_port_information(cls, manip):
-        manip.gen_optical_port('+A', 'A')
-        manip.gen_optical_port('+B', 'B')
+        manip.gen_optical_port("+A", "A")
+        manip.gen_optical_port("+B", "B")
         return
 
     def visit_matrix_algorithm_ACDC(self, manip):
-        manip.add_link('B!i', 'A!o', 1)
-        manip.add_link('A!i', 'B!o', 1)
+        manip.add_link("B!i", "A!o", 1)
+        manip.add_link("A!i", "B!o", 1)
         return
 
     def visit_mode_matching_linkage(self, manip):
-        manip.add_link('B!i', 'A!o', 0)
-        manip.add_link('A!i', 'B!o', 0)
+        manip.add_link("B!i", "A!o", 0)
+        manip.add_link("A!i", "B!o", 0)
         return
 
     def visit_mode_matching_transport(self, manip):
-        #the P-builders are for fast optimization solving
+        # the P-builders are for fast optimization solving
         def p_builderXY(p):
-            fl_m = p['focal_length[m]']
-            shift_m = p['shift[m]']
+            fl_m = p["focal_length[m]"]
+            shift_m = p["shift[m]"]
             if fl_m is None:
                 return matrix_stack([[1, 0], [0, 1]])
             else:
-                Mf  = matrix_stack([[1, 0], [-1/fl_m, 1]])
-                Mfi = matrix_stack([[1, 0], [1/fl_m, 1]])
-                Ms  = matrix_stack([[1, shift_m], [0, 1]])
+                Mf = matrix_stack([[1, 0], [-1 / fl_m, 1]])
+                Mfi = matrix_stack([[1, 0], [1 / fl_m, 1]])
+                Ms = matrix_stack([[1, shift_m], [0, 1]])
                 Msi = matrix_stack([[1, -shift_m], [0, 1]])
 
                 return Msi @ Mf @ Ms @ Mfi
 
         manip.set_XYpropagator(p_builderXY)
         manip.set_Zpropagator()
-        #manip.link_Xpropagator(p_builder)
-        #manip.link_Ypropagator(p_builder)
+        # manip.link_Xpropagator(p_builder)
+        # manip.link_Ypropagator(p_builder)
         matrix = p_builderXY(manip.p)
 
-        manip.set_XYincremental([
-            (0, None, matrix)
-        ])
+        manip.set_XYincremental([(0, None, matrix)])
         return
 
     def visit_mm_anno_description(self, pbg, view, descB):
         desc = []
 
-        def view_add(name, default, name2 = None, transform = lambda x: '{:.3f}'.format(x)):
+        def view_add(name, default, name2=None, transform=lambda x: "{:.3f}".format(x)):
             val = view[name]
             if val == default:
                 return
             if name2 is None:
                 name2 = name
-            desc.append(
-                "{}={}".format(name2, transform(val))
-            )
-        view_add('focal_length[m]', None, 'f', lambda x : alm.str_m(x, space=False))
-        view_add('shift[m]', 0, 'shift', lambda x : alm.str_m(x, space=False))
-        anno = view['annotate']
+            desc.append("{}={}".format(name2, transform(val)))
+
+        view_add("focal_length[m]", None, "f", lambda x: alm.str_m(x, space=False))
+        view_add("shift[m]", 0, "shift", lambda x: alm.str_m(x, space=False))
+        anno = view["annotate"]
         if anno is None:
-            return ', '.join(desc)
+            return ", ".join(desc)
         else:
-            return anno + ' ' + ', '.join(desc)
-
-
+            return anno + " " + ", ".join(desc)

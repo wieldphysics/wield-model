@@ -7,12 +7,12 @@
 # with details inline in source files, comments, and docstrings.
 """
 """
+from collections import namedtuple
 
-from ._version import version, __version__, version_info
+ObjectLinkageTup = namedtuple('ObjectLinkageTup', ['obj', 'linkage'])
+
+ObjectPortTup = namedtuple('ObjectLinkageTup', ['obj', 'port'])
+
+ObjectParamTup = namedtuple('ObjectLinkageTup', ['obj', 'parameter'])
 
 
-__all__ = [
-    'version',
-    '__version__',
-    'version_info',
-]

@@ -1,15 +1,23 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import division, print_function, unicode_literals
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: © 2021 Massachusetts Institute of Technology.
+# SPDX-FileCopyrightText: © 2021 Lee McCuller <mcculler@mit.edu>
+# NOTICE: authors should document their contributions in concisely in NOTICE
+# with details inline in source files, comments, and docstrings.
+"""
+"""
 try:
     from collections.abc import Mapping as MappingABC
 except ImportError:
     from collections import Mapping as MappingABC
-import declarative
+from wavestate import declarative
 
 
 class DictKey(MappingABC):
-    __slots__ = ('_dict', '_cache_hash')
-    def __init__(self, __dict = None, **kwargs):
+    __slots__ = ("_dict", "_cache_hash")
+
+    def __init__(self, __dict=None, **kwargs):
         self._dict = kwargs
         if __dict:
             self._dict.update(__dict)
@@ -34,7 +42,7 @@ class DictKey(MappingABC):
     def __getitem__(self, key):
         return self._dict[key]
 
-    def get(self, key, default = declarative.NOARG):
+    def get(self, key, default=declarative.NOARG):
         if default is declarative.NOARG:
             return self._dict[key]
         return self._dict.get(key, default)
@@ -50,17 +58,17 @@ class DictKey(MappingABC):
     def __lt__(self, other):
         if not isinstance(other, self.__class__):
             return False
-        #TODO this is probably megaslow. Should likely use id or hash
+        # TODO this is probably megaslow. Should likely use id or hash
         l1 = tuple(sorted(self._dict.items()))
         o1 = tuple(sorted(self._dict.items()))
         return l1 < o1
 
-    #@repr_compat
+    # @repr_compat
     def __repr__(self):
         l = tuple(sorted(self._dict.items()))
-        #print(unicode(repr(l), 'utf-8'))
-        l2 = ['{0}:{1}'.format(i, j) for i, j in l]
-        return ("DK{{{0}}}".format('|'.join(l2)))
+        # print(unicode(repr(l), 'utf-8'))
+        l2 = ["{0}:{1}".format(i, j) for i, j in l]
+        return "DK{{{0}}}".format("|".join(l2))
 
     def __or__(self, other):
         cp = dict(self._dict)
@@ -131,16 +139,14 @@ class DictKey(MappingABC):
     def __sub__(self, other):
         cp = dict(self._dict)
         for k, v in list(other._dict.items()):
-            assert(cp[k] == v)
+            assert cp[k] == v
             del cp[k]
         return self.__class__(cp)
 
     def __deepcopy__(self, memo):
-        #by the immutibility of this object and anything it stores, it is OK to return the same thing
+        # by the immutibility of this object and anything it stores, it is OK to return the same thing
         return self
 
     def __copy__(self):
-        #by the immutibility of this object and anything it stores, it is OK to return the same thing
+        # by the immutibility of this object and anything it stores, it is OK to return the same thing
         return self
-
-
