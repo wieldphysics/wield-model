@@ -75,6 +75,7 @@ class OverlapperPlotter(object):
         setup_yaxis=True,
         length_max_m=None,
         length_max_in=None,
+        height_ratios={},
         annotate_tags=[],
         **kwargs
     ):
@@ -132,6 +133,7 @@ class OverlapperPlotter(object):
                     ("Gouy", True),
                     ("olap", self_overlap),
                 ],
+                height_ratios = height_ratios,
                 width_phys_in=10,
                 heights_phys_in_default=1.5,
                 hspace=0.08,
