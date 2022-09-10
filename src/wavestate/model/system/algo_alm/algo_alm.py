@@ -494,6 +494,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                 oLp_set_seq, loop=False, allow_non_unique=True
             )
 
+            include_center = False
             if oLp_path_fr[-1] != oLp_path_center[0]:
                 if len(oLp_path_fr) == 1:
                     mid = oLp_path_fr[0]
@@ -501,11 +502,23 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                     oLp_path_fr = oLp_path_center[: idx + 1]
                     inv_start = True
                 else:
-                    raise NotImplementedError(
-                        "MM Doesn't support middle-injection beams (target {})".format(
-                            t_fr
-                        )
-                    )
+                    mid = oLp_path_fr[-1]
+                    idx = oLp_path_center.index(mid)
+
+                    oLp_path_fr = oLp_path_fr + oLp_path_center[idx + 1:]
+                    #raise NotImplementedError(
+                    #    "MM Doesn't support middle-injection beams (target {})".format(
+                    #        t_fr
+                    #    )
+                    #)
+                    tspecB_fr = self._target_get(t_fr, Wk=Wk)
+                    frB = Bunch()
+                    frB.tspecB = tspecB_fr
+                    frB.oLp_path = oLp_path_fr
+                    frB.include_center = False
+                    frB.inv_start = False
+                    targetsB_to[t_fr] = frB
+                    continue
             else:
                 inv_start = False
 
@@ -514,7 +527,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
             targetsB_fr[t_fr] = frB
             frB.tspecB = tspecB_fr
             frB.oLp_path = oLp_path_fr
-            frB.include_center = False
+            frB.include_center = include_center
             frB.inv_start = inv_start
 
         for t_to, wp_to in targets_to.items():
