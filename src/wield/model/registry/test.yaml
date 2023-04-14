@@ -1,7 +1,7 @@
 #can be a dictionary (files to namespace) or list of files, or list of dictionarys
 ^import:
   - test2.yaml
-  - wavestate.model.optics
+  - wield.model.optics
   - constants.yaml : constants
 
 #default type is just a ParameterObject
