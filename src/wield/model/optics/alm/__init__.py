@@ -5,16 +5,27 @@
 # SPDX-FileCopyrightText: © 2021 Lee McCuller <mcculler@caltech.edu>
 # NOTICE: authors should document their contributions in concisely in NOTICE
 # with details inline in source files, comments, and docstrings.
-""" Setup and build the wield.collection package, which acts as the metapackage
-
-Packaging guidance may be found at https://packaging.python.org/tutorials/packaging-projects/
 """
-from setuptools import setup
-
-# Settings are primarily in setup.cfg
-setup(
-    # this ensures setuptools is new enough to use setup.cfg
-    setup_requires=[
-        "setuptools >= 45.0.0",
-    ],
+"""
+from .beam_param import (
+    ComplexBeamParam,
 )
+
+from .beam_fit import (
+    QFit,
+)
+
+from .utils import (
+    matrix_space,
+    eigen_q,
+    interface_ROC,
+    interface_ROC_AOI_Y,
+    interface_ROC_AOI_X,
+    REFL_ROC_X,
+    REFL_ROC_Y,
+    str_m,
+    str_D,
+    unit_str,
+)
+
+from .substrates import substrates

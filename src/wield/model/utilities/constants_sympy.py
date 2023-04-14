@@ -5,16 +5,19 @@
 # SPDX-FileCopyrightText: © 2021 Lee McCuller <mcculler@caltech.edu>
 # NOTICE: authors should document their contributions in concisely in NOTICE
 # with details inline in source files, comments, and docstrings.
-""" Setup and build the wield.collection package, which acts as the metapackage
-
-Packaging guidance may be found at https://packaging.python.org/tutorials/packaging-projects/
 """
-from setuptools import setup
+"""
+from wield.bunch import Bunch
+import sympy
 
-# Settings are primarily in setup.cfg
-setup(
-    # this ensures setuptools is new enough to use setup.cfg
-    setup_requires=[
-        "setuptools >= 45.0.0",
-    ],
+
+constants_sympy = Bunch(
+    c_m_s=299792458,
+    kB_J_K=1.380658e-23,
+    h_Js=6.6260700408e-34,
+    hbar_Js=1.0545718001e-34,
+    pi=sympy.pi,
+    i=sympy.I,
+    i2pi=2 * sympy.pi * sympy.I,
+    temp_K=299,
 )

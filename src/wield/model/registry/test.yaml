@@ -1,0 +1,38 @@
+#can be a dictionary (files to namespace) or list of files, or list of dictionarys
+^import:
+  - test2.yaml
+  - wield.model.optics
+  - constants.yaml : constants
+
+#default type is just a ParameterObject
+test/: 
+  subobj/ :
+    ^type : Mirror/ 
+  ^bonds :
+    - 
+  ^port_forwards :
+    - 
+  ^port_chains :
+    - 
+
+test/subobj/:
+  L : .1
+  T : .001
+    
+test/subobj/AOI[deg] : 20
+
+#switches to export nothing but those in this list and export_include
+^export_only:
+  - test/
+
+#can also export some items out of the namespace
+^export_include:
+  - 
+
+^export_exclude:
+  - hello
+
+^run:
+  system : test/
+  commands:
+    - MM
