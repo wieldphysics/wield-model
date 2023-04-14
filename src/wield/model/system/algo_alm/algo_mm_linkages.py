@@ -9,8 +9,8 @@
 """
 import collections
 from collections.abc import Mapping
-from wavestate.utilities.priority_queue import HeapPriorityQueue
-from wavestate.bunch import Bunch
+from wield.utilities.priority_queue import HeapPriorityQueue
+from wield.bunch import Bunch
 from ...optics import alm
 
 from .. import algo_phys

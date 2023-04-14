@@ -11,19 +11,19 @@
 import numpy as np
 import pytest
 
-from wavestate import model
-from wavestate.model import pgraph
-from wavestate.model import optics
-from wavestate.model import base
+from wield import model
+from wield.model import pgraph
+from wield.model import optics
+from wield.model import base
 
-from wavestate.model.system import algo_bg
-from wavestate.model.system import algo_freq
-from wavestate.model.system import algo_phys
-from wavestate.model.system import algo_graphs
+from wield.model.system import algo_bg
+from wield.model.system import algo_freq
+from wield.model.system import algo_phys
+from wield.model.system import algo_graphs
 
-from wavestate.model.system import algo_log
+from wield.model.system import algo_log
 
-from wavestate.pytest.fixtures import (
+from wield.pytest.fixtures import (
     tpath_join,
     plot,
 )
@@ -93,7 +93,7 @@ def test_FP_DC_scan(plot, tpath_join, algo_log):
     # ic(pa.dc('REFL/', demod = 'RF9'))
 
     if plot:
-        from wavestate.utilities.mpl import mplfigB
+        from wield.utilities.mpl import mplfigB
 
         axB = mplfigB(Nrows=2)
         axB.ax0.plot(
@@ -135,7 +135,7 @@ def test_FP_AC(plot, tpath_join):
     # ic(pa.dc('REFL/', demod = 'RF9'))
 
     if plot:
-        from wavestate.utilities.mpl import mplfigB
+        from wield.utilities.mpl import mplfigB
 
         axB = mplfigB(Nrows=3)
         axB.ax0.loglog(
@@ -173,7 +173,7 @@ def test_FP_AC(plot, tpath_join):
 #    #from icecream import ic
 #    #ic(edges)
 #
-#    from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
+#    from wield.utilities.np.SRE.semidense import SREkmatrix_inverse
 #
 #    nmap, SREIO = pa.dc.SREIO_DC(
 #        map_nodes = True,

@@ -12,12 +12,12 @@ import numpy as np
 import pytest
 from os import path
 
-from wavestate.model import optics
-from wavestate import model
-from wavestate.model.system import algo_phys
+from wield.model import optics
+from wield import model
+from wield.model.system import algo_phys
 
 
-from wavestate.pytest import tpath_join, dprint, plot  # noqa: F401
+from wield.pytest import tpath_join, dprint, plot  # noqa: F401
 
 def linear_cavity(sys=None):
     if sys is None:

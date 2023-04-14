@@ -9,7 +9,7 @@
 """
 
 
-from wavestate.model import pgraph
+from wield.model import pgraph
 
 
 def test_obj_build():

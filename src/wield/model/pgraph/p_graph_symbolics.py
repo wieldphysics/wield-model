@@ -8,7 +8,7 @@
 """
 """
 
-from wavestate.utilities import ref_p_split, ref_port_split
+from wield.utilities import ref_p_split, ref_port_split
 import sympy
 import collections
 

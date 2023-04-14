@@ -8,7 +8,7 @@
 """
 """
 
-from wavestate.utilities.np.semidense import KeyGroup
+from wield.utilities.np.semidense import KeyGroup
 
 
 kg_polarization = KeyGroup(

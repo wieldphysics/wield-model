@@ -7,8 +7,8 @@
 # with details inline in source files, comments, and docstrings.
 """
 """
-from wavestate.model.utilities import constants
-from wavestate.bunch import Bunch
+from wield.model.utilities import constants
+from wield.bunch import Bunch
 
 from .. import base
 from .. import _base

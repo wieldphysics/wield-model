@@ -10,7 +10,7 @@
 import numpy as np
 import collections
 
-from wavestate.utilities.np import matrix_stack
+from wield.utilities.np import matrix_stack
 
 from .. import base
 from . import alm

@@ -12,18 +12,18 @@ from os import path
 import numpy as np
 import pytest
 
-from wavestate.model import pgraph
-from wavestate.model import optics
-from wavestate.model import base
-from wavestate import model
-from wavestate.model.system import algo_bg
-from wavestate.model.system import algo_freq
-from wavestate.model.system import algo_phys
+from wield.model import pgraph
+from wield.model import optics
+from wield.model import base
+from wield import model
+from wield.model.system import algo_bg
+from wield.model.system import algo_freq
+from wield.model.system import algo_phys
 
-from wavestate.model.system import algo_graphs
+from wield.model.system import algo_graphs
 
-from wavestate.model.system import algo_log
-from wavestate.pytest import Timer
+from wield.model.system import algo_log
+from wield.pytest import Timer
 
 # needed by algo_graphs
 pygraphviz = pytest.importorskip('pygraphviz')
@@ -120,7 +120,7 @@ def test_fabry_perot_DC(tpath):
     )
     (seq, req, edges, inputs, outputs) = SREIO
 
-    from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
+    from wield.utilities.np.SRE.semidense import SREkmatrix_inverse
 
     SREkmatrix_inverse(
         seq,
@@ -151,7 +151,7 @@ def test_fabry_perot_DC_matrix(tpath):
     pa = algo_phys.PhysicsAlgorithm(obj_sys)
     # ga = algo_graphs.GraphPlottingAlgorithm(pa)
 
-    from wavestate.utilities.np.SRE.semidense import SREkmatrix_inverse
+    from wield.utilities.np.SRE.semidense import SREkmatrix_inverse
 
     nmap, SREIO = pa.dc.SREIO_DC(
         map_nodes=True,

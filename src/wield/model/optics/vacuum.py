@@ -11,7 +11,7 @@ import collections
 
 from .. import base
 
-# from wavestate.model import matrix
+# from wield.model import matrix
 
 
 class Vacuum(base.OpticalObject):

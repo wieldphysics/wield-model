@@ -14,7 +14,7 @@ import collections
 import threading
 import contextlib
 
-from wavestate.model.utilities import constants
+from wield.model.utilities import constants
 
 from . import utilities
 

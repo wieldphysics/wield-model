@@ -14,15 +14,15 @@ import matplotlib.lines as mlines
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 from matplotlib import legend_handler, lines
 from matplotlib.text import OffsetFrom
-from wavestate.bunch import Bunch
+from wield.bunch import Bunch
 
 from ...optics import alm
 from ...optics.alm.utils import (
     str_m,
 )
-from wavestate.utilities.mpl import mplfigB
+from wield.utilities.mpl import mplfigB
 
-from wavestate.utilities.mpl.stacked_plots import (
+from wield.utilities.mpl.stacked_plots import (
     generate_stacked_plot_ax,
 )
 

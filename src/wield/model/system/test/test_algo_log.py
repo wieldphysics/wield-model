@@ -10,7 +10,7 @@
 
 from os import path
 
-from wavestate.model.system import algo_log
+from wield.model.system import algo_log
 
 
 def test_log():

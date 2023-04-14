@@ -10,11 +10,11 @@
 
 import numpy as np
 import scipy.optimize
-from wavestate import declarative
+from wield import declarative
 
 from .beam_param import ComplexBeamParam
 
-from wavestate.utilities.mpl import (
+from wield.utilities.mpl import (
     mplfigB,
 )
 

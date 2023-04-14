@@ -10,9 +10,9 @@
 
 import numpy as np
 from .plot_alm import OverlapperPlotter
-from wavestate.bunch import Bunch
+from wield.bunch import Bunch
 from . import mm_annotate
-from wavestate.utilities.strings import table
+from wield.utilities.strings import table
 from ... import optics
 
 

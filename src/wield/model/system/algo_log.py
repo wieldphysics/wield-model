@@ -14,9 +14,9 @@ import logging
 import re
 
 import contextlib
-from wavestate import declarative
+from wield import declarative
 
-from wavestate.utilities.strings import padding_remove
+from wield.utilities.strings import padding_remove
 
 
 class LoggingAlgorithm(object):

@@ -8,7 +8,7 @@
 """
 """
 import numpy as np
-from wavestate.utilities.np import matrix_stack
+from wield.utilities.np import matrix_stack
 
 
 def np_check_sorted(vals):

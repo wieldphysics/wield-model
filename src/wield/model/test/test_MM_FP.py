@@ -10,13 +10,13 @@
 from os import path
 
 
-from wavestate.model import optics
-from wavestate import model
-from wavestate.model.system import algo_phys
-from wavestate.model.system import algo_graphs
-from wavestate.model.system import algo_log
+from wield.model import optics
+from wield import model
+from wield.model.system import algo_phys
+from wield.model.system import algo_graphs
+from wield.model.system import algo_log
 
-from wavestate.pytest import tpath, dprint
+from wield.pytest import tpath, dprint
 
 
 def system_build():

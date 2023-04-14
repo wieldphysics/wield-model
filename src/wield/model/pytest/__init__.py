@@ -8,7 +8,7 @@
 """
 """
 import pytest
-from wavestate.model.system import algo_log as ws_algo_log
+from wield.model.system import algo_log as ws_algo_log
 
 
 @pytest.fixture

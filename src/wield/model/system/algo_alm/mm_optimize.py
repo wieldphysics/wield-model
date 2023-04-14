@@ -11,7 +11,7 @@ import numpy as np
 import collections
 import itertools
 import warnings
-from wavestate.bunch import Bunch
+from wield.bunch import Bunch
 from . import mm_overlapper
 from ...optics import alm
 

@@ -9,8 +9,8 @@
 """
 
 
-from wavestate.model import optics
-from wavestate.model import base
+from wield.model import optics
+from wield.model import base
 
 
 def system1064(SHG=True):
