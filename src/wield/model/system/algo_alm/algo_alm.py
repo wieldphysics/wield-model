@@ -409,7 +409,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                     target = next(iter(target))
 
             if targets is not None:
-                if not isinstance(targets, collections.Mapping):
+                if not isinstance(targets, collections.abc.Mapping):
                     for t in targets:
                         targets_d[t] = []
                 else:

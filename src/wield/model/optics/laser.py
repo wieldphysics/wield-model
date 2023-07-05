@@ -7,7 +7,7 @@
 # with details inline in source files, comments, and docstrings.
 """
 """
-import collections
+from collections.abc import Mapping
 
 from .. import base
 from . import vacuum
@@ -53,7 +53,7 @@ class Laser(base.OpticalObject):
             param_F = manip.p["frequency"]
             if param_F is None:
                 Fkey = manip.default_optical_freqkey()
-            elif isinstance(param_F, collections.Mapping):
+            elif isinstance(param_F, Mapping):
                 Fkey = base.FrequencyKey(param_F)
             elif isinstance(param_F, str):
                 Fkey = base.FrequencyKey({param_F: 1})
@@ -64,7 +64,7 @@ class Laser(base.OpticalObject):
             param_W = manip.p["wavelength"]
             if param_W is None:
                 Wkey = manip.default_optical_wavekey()
-            elif isinstance(param_W, collections.Mapping):
+            elif isinstance(param_W, Mapping):
                 Wkey = manip.configure_optical_wavenumber(param_W)
             elif isinstance(param_W, str):
                 # TODO, check existence
