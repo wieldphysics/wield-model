@@ -8,6 +8,7 @@
 """
 """
 import collections
+from collections.abc import Mapping
 from .. import base
 from . import algo_phys
 
@@ -44,7 +45,7 @@ class PhysicsACAlgorithm(object):
         if isinstance(fparam, str):
             # TODO, check that the key exists
             return base.FrequencyKey({fparam: 1})
-        elif isinstance(fparam, collections.Mapping):
+        elif isinstance(fparam, Mapping):
             return base.FrequencyKey(fparam)
 
     def _optical_frequency_allowed(self, fk):
