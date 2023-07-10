@@ -91,6 +91,9 @@ class ThinLens(base.OpticalObject):
 
 
 class ThinMirror(base.OpticalObject):
+    """
+    A perfectly reflective thin mirror.
+    """
     def __init__(self):
         super(ThinMirror, self).__init__()
         with self._internal():

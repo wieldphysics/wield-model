@@ -51,6 +51,9 @@ class MirrorBase(base.OpticalObject):
                 "ROC_B[m]",
                 "depth[m]",
                 "AOI[deg]",
+                "defocus[D]",
+                "defocusX[D]",
+                "defocusY[D]",
             ]
         )
 
