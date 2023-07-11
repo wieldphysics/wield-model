@@ -31,6 +31,7 @@ class MirrorBase(base.OpticalObject):
             self["defocus_B[D]"] = 0
             self["defocusX_B[D]"] = 0
             self["defocusY_B[D]"] = 0
+            self["substrate_lens[D]"] = 0
 
             self["annotate"] = "Mirror"
 
@@ -60,6 +61,7 @@ class MirrorBase(base.OpticalObject):
                 "defocus_B[D]",
                 "defocusX_B[D]",
                 "defocusY_B[D]",
+                "substrate_lens[D]",
             ]
         )
 
@@ -337,6 +339,7 @@ class MirrorBase(base.OpticalObject):
         defocusXB_D = manip.p["defocus_B[D]"] + manip.p["defocusX_B[D]"]
         defocusYA_D = manip.p["defocus[D]"] + manip.p["defocusY[D]"]
         defocusYB_D = manip.p["defocus_B[D]"] + manip.p["defocusY_B[D]"]
+        substrate_lens_D = manip.p["substrate_lens[D]"]
         matrixAD_X = matrix_stack([[1, 0], [defocusXA_D, 1]])
         matrixAD_Y = matrix_stack([[1, 0], [defocusYA_D, 1]])
         matrixBD_X = matrix_stack([[1, 0], [defocusXB_D, 1]])
@@ -355,7 +358,8 @@ class MirrorBase(base.OpticalObject):
             matrixAI_Y = alm.interface_ROC_AOI_Y(
                 ROC_A_m, n_from=n_A, n_to=n_I, AOI_rad=AOI_rad
             )
-            matrixII = matrix_stack([[1, depth_m], [0, 1]])
+            matrixII = alm.substrate_propagation(
+                depth_m, n0=n_I, defocus_D=substrate_lens_D)
             matrixIB_X = alm.interface_ROC_AOI_X(
                 ROC_B_m, n_from=n_I, n_to=n_B, AOI_rad=AOI_rad, neg=True
             )
@@ -364,7 +368,7 @@ class MirrorBase(base.OpticalObject):
             )
 
             def inc_builder(z):
-                return matrix_stack([[1, z], [0, 1]])
+                return alm.substrate_propagation(z, n0=n_I, defocus_D=substrate_lens_D)
 
             manip.set_Xincremental(
                 [
@@ -399,7 +403,8 @@ class MirrorBase(base.OpticalObject):
                 matrixAI = alm.interface_ROC_AOI_X(
                     ROC_A_m, n_from=n_A, n_to=n_I, AOI_rad=AOI_rad
                 )
-                matrixII = matrix_stack([[1, depth_m], [0, 1]])
+                matrixII = alm.substrate_propagation(
+                    depth_m, n0=n_I, defocus_D=substrate_lens_D)
                 matrixIB = alm.interface_ROC_AOI_X(
                     ROC_B_m, n_from=n_I, n_to=n_B, AOI_rad=AOI_rad, neg=True
                 )
@@ -415,11 +420,12 @@ class MirrorBase(base.OpticalObject):
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
                 defocus_A_D = p["defocus[D]"] + p["defocusY[D]"]
                 defocus_B_D = p["defocus_B[D]"] + p["defocusY_B[D]"]
-
+                matrixII = alm.substrate_propagation(
+                    depth_m, n0=n_I, defocus_D=substrate_lens_D)
                 matrixAI = alm.interface_ROC_AOI_Y(
                     ROC_A_m, n_from=n_A, n_to=n_I, AOI_rad=AOI_rad
                 )
-                matrixII = matrix_stack([[1, depth_m], [0, 1]])
+
                 matrixIB = alm.interface_ROC_AOI_Y(
                     ROC_B_m, n_from=n_I, n_to=n_B, AOI_rad=AOI_rad, neg=True
                 )
@@ -441,7 +447,8 @@ class MirrorBase(base.OpticalObject):
             matrixBI_Y = alm.interface_ROC_AOI_Y(
                 ROC_B_m, n_from=n_B, n_to=n_I, AOI_rad=AOI_rad
             )
-            matrixII = matrix_stack([[1, depth_m], [0, 1]])
+            matrixII = alm.substrate_propagation(
+                depth_m, n0=n_I, defocus_D=substrate_lens_D)
             matrixIA_X = alm.interface_ROC_AOI_X(
                 ROC_A_m, n_from=n_I, n_to=n_A, AOI_rad=AOI_rad, neg=True
             )
@@ -450,7 +457,7 @@ class MirrorBase(base.OpticalObject):
             )
 
             def inc_builder(z):
-                return matrix_stack([[1, z], [0, 1]])
+                return alm.substrate_propagation(z, n0=n_I, defocus_D=substrate_lens_D)
 
             manip.set_Xincremental(
                 [
@@ -485,7 +492,8 @@ class MirrorBase(base.OpticalObject):
                 matrixBI = alm.interface_ROC_AOI_X(
                     ROC_B_m, n_from=n_B, n_to=n_I, AOI_rad=AOI_rad
                 )
-                matrixII = matrix_stack([[1, depth_m], [0, 1]])
+                matrixII = alm.substrate_propagation(
+                    depth_m, n0=n_I, defocus_D=substrate_lens_D)
                 matrixIA = alm.interface_ROC_AOI_X(
                     ROC_A_m, n_from=n_I, n_to=n_A, AOI_rad=AOI_rad, neg=True
                 )
@@ -505,7 +513,8 @@ class MirrorBase(base.OpticalObject):
                 matrixBI = alm.interface_ROC_AOI_Y(
                     ROC_B_m, n_from=n_B, n_to=n_I, AOI_rad=AOI_rad
                 )
-                matrixII = matrix_stack([[1, depth_m], [0, 1]])
+                matrixII = alm.substrate_propagation(
+                    depth_m, n0=n_I, defocus_D=substrate_lens_D)
                 matrixIA = alm.interface_ROC_AOI_Y(
                     ROC_A_m, n_from=n_I, n_to=n_A, AOI_rad=AOI_rad, neg=True
                 )
@@ -513,15 +522,14 @@ class MirrorBase(base.OpticalObject):
                 matrixAD = matrix_stack([[1, 0], [defocus_A_D, 1]])
                 return matrixAD @ matrixIA @ matrixII @ matrixBI @ matrixBD
 
-            manip.set_Xpropagator(p_builder_X)
-            manip.set_Ypropagator(p_builder_Y)
-
             def p_builderZ(p):
                 depth_m = p["depth[m]"]
                 AOI_rad = p["AOI[deg]"] * np.pi / 180
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
                 return depth_m
 
+            manip.set_Xpropagator(p_builder_X)
+            manip.set_Ypropagator(p_builder_Y)
             manip.set_Zpropagator(
                 {"depth[m]": (1 / np.cos(AOI_rad * n_A / n_I), "AOI[deg]")}
             )
@@ -561,7 +569,8 @@ class MirrorBase(base.OpticalObject):
             matrixBI_Y = alm.interface_ROC_AOI_Y(
                 ROC_B_m, n_from=n_B, n_to=n_I, AOI_rad=AOI_rad
             )
-            matrixII = matrix_stack([[1, depth_m], [0, 1]])
+            matrixII = alm.substrate_propagation(
+                depth_m, n0=n_I, defocus_D=substrate_lens_D)
             if ROC_A_m is not None:
                 matrixR_X = alm.REFL_ROC_X(ROC_A_m, AOI_rad, neg=True)
                 matrixR_Y = alm.REFL_ROC_Y(ROC_A_m, AOI_rad, neg=True)
@@ -577,7 +586,7 @@ class MirrorBase(base.OpticalObject):
             )
 
             def inc_builder(z):
-                return matrix_stack([[1, z], [0, 1]])
+                return alm.substrate_propagation(z, n0=n_I, defocus_D=substrate_lens_D)
 
             manip.set_Xincremental(
                 [
@@ -616,7 +625,8 @@ class MirrorBase(base.OpticalObject):
                 matrixAD = matrix_stack([[1, 0], [defocus_A_D, 1]])
                 matrixBD = matrix_stack([[1, 0], [defocus_B_D, 1]])
                 matrixBI = alm.interface_ROC(ROC_B_m, n_from=n_B, n_to=n_I)
-                matrixII = matrix_stack([[1, depth_m], [0, 1]])
+                matrixII = alm.substrate_propagation(
+                    depth_m, n0=n_I, defocus_D=substrate_lens_D)
                 if ROC_A_m is not None:
                     matrixR = matrix_stack([[1, 0], [-2 / ROC_A_m, 1]])
                 else:
@@ -637,7 +647,8 @@ class MirrorBase(base.OpticalObject):
                 matrixAD = matrix_stack([[1, 0], [defocus_A_D, 1]])
                 matrixBD = matrix_stack([[1, 0], [defocus_B_D, 1]])
                 matrixBI = alm.interface_ROC(ROC_B_m, n_from=n_B, n_to=n_I)
-                matrixII = matrix_stack([[1, depth_m], [0, 1]])
+                matrixII = alm.substrate_propagation(
+                    depth_m, n0=n_I, defocus_D=substrate_lens_D)
                 if ROC_A_m is not None:
                     matrixR = matrix_stack([[1, 0], [-2 / ROC_A_m, 1]])
                 else:

@@ -22,6 +22,7 @@ To convert between the two,
 A = AA, B = n1 * BB, C = CC / n2, and D = DD * (n1 / n2)
 """
 import numpy as np
+from scipy.optimize import minimize
 from wield.utilities.np import matrix_stack
 
 
@@ -315,3 +316,63 @@ def REFL_ROC_X(ROC_m, AOI_rad):
                 [0, 1],
             ]
         )
+
+
+def substrate_propagation(depth_m, n0=1, defocus_D=0, exact=False):
+    """
+    ABCD matrix for propagation through a substrate
+
+    The substrate may have a quadratic lens which is modeled as a Gaussian duct.
+
+    Parameters
+    ----------
+    depth_m : float
+        Length of propagation [m]
+    n0 : float; default: 1
+        Index of refraction of the substrate
+    defocus_D : float; default 0
+        Defocus of the substrate lens [D]
+    exact : bool; default: False
+        If False, use a weak lens approximation to solve for the Gaussian duct parameters from
+        the given substrate lens. If True, numerically solve for the parameters.
+    """
+    # just a propagation if there's no lens
+    if defocus_D == 0:
+        return matrix_stack([
+            [1, depth_m],
+            [0, 1],
+        ])
+
+    # The defocus for a positive lens is n0 * gamma * tan(gamma * depth)
+    # The defocus for a negative lens is -n0 * gamma * tanh(gamma * depth)
+    # See http://rezonator.orion-project.org/help/calc_grin.html
+    # Weak lens approximation
+    gamma0 = np.sqrt(np.abs(defocus_D) / (n0 * depth_m))
+
+    if defocus_D > 0:
+        if exact:
+            res = minimize(
+                lambda x: np.abs(n0 * x * np.tan(x * depth_m) / defocus_D - 1),
+                gamma0,
+            )
+            gamma = res['x'][0]
+        else:
+            gamma = gamma0
+        return matrix_stack([
+            [np.cos(gamma * depth_m), np.sin(gamma * depth_m) / gamma],
+            [-gamma * np.sin(gamma * depth_m), np.cos(gamma * depth_m)],
+        ])
+
+    else:
+        if exact:
+            res = minimize(
+                lambda x: np.abs(n0 * x * np.tanh(x * depth_m) / defocus_D + 1),
+                gamma0,
+            )
+            gamma = res['x'][0]
+        else:
+            gamma = gamma0
+        return matrix_stack([
+            [np.cosh(gamma * depth_m), np.sinh(gamma * depth_m) / gamma],
+            [-gamma * np.sinh(gamma * depth_m), np.cosh(gamma * depth_m)],
+        ])
