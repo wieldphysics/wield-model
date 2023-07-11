@@ -6,6 +6,20 @@
 # NOTICE: authors should document their contributions in concisely in NOTICE
 # with details inline in source files, comments, and docstrings.
 """
+Utilities for complex beam parameter propagation and string formatting
+
+Note that the ABCD convention used here for beam propagation differs from other references,
+e.g. Siegman. Here complex beam parameters q are propagated by
+
+q2 = (A * q1 + B) / (C * q1 + D)
+
+whereas in Siegman
+
+q2/n2 = (AA * (q1/n1) + BB) / (CC * (q1/n1) + DD)
+
+where n1 and n2 are the indices of refraction of the regions where the two beams are propagating.
+To convert between the two,
+A = AA, B = n1 * BB, C = CC / n2, and D = DD * (n1 / n2)
 """
 import numpy as np
 from wield.utilities.np import matrix_stack
@@ -135,6 +149,20 @@ def str_D(val, d=3, use_c=False, space=True):
 
 
 def interface_ROC(ROC_m, n_from, n_to, neg=False):
+    """
+    ABCD matrix for transmission through a curved surface at normal incidence
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    n_from : float
+        Index of refraction for the incident beam
+    n_to : float
+        Index of refraction for the transmitted beam
+    neg : bool; default: False
+        If True, reverses the sign of the radius of curvature
+    """
     nft = n_from / n_to
     if ROC_m is not None:
         if neg:
@@ -155,6 +183,23 @@ def interface_ROC(ROC_m, n_from, n_to, neg=False):
 
 
 def interface_ROC_AOI_Y(ROC_m, n_from, n_to, AOI_rad, neg=False):
+    """
+    ABCD matrix for transmission through a curved surface at arbitrary angle of incidence in the
+    saggital plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    n_from : float
+        Index of refraction for the incident beam
+    n_to : float
+        Index of refraction for the transmitted beam
+    AOI_rad : float
+        Angle of incidence [rad]
+    neg : bool; default: False
+        If True, reverses the sign of the radius of curvature
+    """
     nft = n_from / n_to
     if ROC_m is not None:
         adj = (1 - (nft * np.sin(AOI_rad)) ** 2) ** 0.5
@@ -176,6 +221,23 @@ def interface_ROC_AOI_Y(ROC_m, n_from, n_to, AOI_rad, neg=False):
 
 
 def interface_ROC_AOI_X(ROC_m, n_from, n_to, AOI_rad, neg=False):
+    """
+    ABCD matrix for transmission through a curved surface at arbitrary angle of incidence in the
+    tangential plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    n_from : float
+        Index of refraction for the incident beam
+    n_to : float
+        Index of refraction for the transmitted beam
+    AOI_rad : float
+        Angle of incidence [rad]
+    neg : bool; default: False
+        If True, reverses the sign of the radius of curvature
+    """
     nft = n_from / n_to
     if ROC_m is not None:
         adj = (1 - (nft * np.sin(AOI_rad)) ** 2) ** 0.5
@@ -200,6 +262,17 @@ def interface_ROC_AOI_X(ROC_m, n_from, n_to, AOI_rad, neg=False):
 
 
 def REFL_ROC_Y(ROC_m, AOI_rad):
+    """
+    ABCD matrix for reflection from a curved surface at arbitrary angle of incidence in the
+    saggital plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    AOI_rad : float
+        Angle of incidence [rad]
+    """
     if ROC_m is not None:
         return matrix_stack(
             [
@@ -217,6 +290,17 @@ def REFL_ROC_Y(ROC_m, AOI_rad):
 
 
 def REFL_ROC_X(ROC_m, AOI_rad):
+    """
+    ABCD matrix for reflection from a curved surface at arbitrary angle of incidence in the
+    tangential plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    AOI_rad : float
+        Angle of incidence [rad]
+    """
     if ROC_m is not None:
         return matrix_stack(
             [
