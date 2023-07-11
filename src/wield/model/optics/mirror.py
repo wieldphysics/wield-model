@@ -28,6 +28,9 @@ class MirrorBase(base.OpticalObject):
             self["defocus[D]"] = 0
             self["defocusX[D]"] = 0
             self["defocusY[D]"] = 0
+            self["defocus_B[D]"] = 0
+            self["defocusX_B[D]"] = 0
+            self["defocusY_B[D]"] = 0
 
             self["annotate"] = "Mirror"
 
@@ -54,6 +57,9 @@ class MirrorBase(base.OpticalObject):
                 "defocus[D]",
                 "defocusX[D]",
                 "defocusY[D]",
+                "defocus_B[D]",
+                "defocusX_B[D]",
+                "defocusY_B[D]",
             ]
         )
 
@@ -327,6 +333,10 @@ class MirrorBase(base.OpticalObject):
         depth_m = manip.p["depth[m]"]
         ROC_B_m = manip.p["ROC_B[m]"]
         AOI_rad = manip.p["AOI[deg]"] * np.pi / 180
+        defocusXA_D = manip.p["defocus[D]"] + manip.p["defocusX[D]"]
+        defocusXB_D = manip.p["defocus_B[D]"] + manip.p["defocusX_B[D]"]
+        defocusYA_D = manip.p["defocus[D]"] + manip.p["defocusY[D]"]
+        defocusYB_D = manip.p["defocus_B[D]"] + manip.p["defocusY_B[D]"]
 
         # TODO, linear approximation
         depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
@@ -348,23 +358,31 @@ class MirrorBase(base.OpticalObject):
             matrixIB_Y = alm.interface_ROC_AOI_Y(
                 ROC_B_m, n_from=n_I, n_to=n_B, AOI_rad=AOI_rad, neg=True
             )
+            matrixAD_X = matrix_stack([[1, 0], [defocusXA_D, 1]])
+            matrixAD_Y = matrix_stack([[1, 0], [defocusYA_D, 1]])
+            matrixBD_X = matrix_stack([[1, 0], [-defocusXB_D, 1]])
+            matrixBD_Y = matrix_stack([[1, 0], [-defocusYB_D, 1]])
 
             def inc_builder(z):
                 return matrix_stack([[1, z], [0, 1]])
 
             manip.set_Xincremental(
                 [
+                    (0, None, matrixAD_X),
                     (0, None, matrixAI_X),
                     (depth_m, inc_builder, matrixII),
                     (0, None, matrixIB_X),
+                    (0, None, matrixBD_X),
                 ]
             )
 
             manip.set_Yincremental(
                 [
+                    (0, None, matrixAD_Y),
                     (0, None, matrixAI_Y),
                     (depth_m, inc_builder, matrixII),
                     (0, None, matrixIB_Y),
+                    (0, None, matrixBD_Y),
                 ]
             )
             # the P-builders are for fast optimization solving
@@ -374,6 +392,8 @@ class MirrorBase(base.OpticalObject):
                 ROC_B_m = p["ROC_B[m]"]
                 AOI_rad = p["AOI[deg]"] * np.pi / 180
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
+                defocus_A_D = p["defocus[D]"] + p["defocusX[D]"]
+                defocus_B_D = p["defocus_B[D]"] + p["defocusX_B[D]"]
 
                 matrixAI = alm.interface_ROC_AOI_X(
                     ROC_A_m, n_from=n_A, n_to=n_I, AOI_rad=AOI_rad
@@ -382,7 +402,9 @@ class MirrorBase(base.OpticalObject):
                 matrixIB = alm.interface_ROC_AOI_X(
                     ROC_B_m, n_from=n_I, n_to=n_B, AOI_rad=AOI_rad, neg=True
                 )
-                return matrixIB @ matrixII @ matrixAI
+                matrixAD = matrix_stack([[1, 0], [defocus_A_D, 1]])
+                matrixBD = matrix_stack([[1, 0], [-defocus_B_D, 1]])
+                return matrixBD @ matrixIB @ matrixII @ matrixAI @ matrixAD
 
             manip.set_Xpropagator(p_builder_X)
 
@@ -392,6 +414,8 @@ class MirrorBase(base.OpticalObject):
                 ROC_B_m = p["ROC_B[m]"]
                 AOI_rad = p["AOI[deg]"] * np.pi / 180
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
+                defocus_A_D = p["defocus[D]"] + p["defocusY[D]"]
+                defocus_B_D = p["defocus_B[D]"] + p["defocusY_B[D]"]
 
                 matrixAI = alm.interface_ROC_AOI_Y(
                     ROC_A_m, n_from=n_A, n_to=n_I, AOI_rad=AOI_rad
@@ -400,7 +424,9 @@ class MirrorBase(base.OpticalObject):
                 matrixIB = alm.interface_ROC_AOI_Y(
                     ROC_B_m, n_from=n_I, n_to=n_B, AOI_rad=AOI_rad, neg=True
                 )
-                return matrixIB @ matrixII @ matrixAI
+                matrixAD = matrix_stack([[1, 0], [defocus_A_D, 1]])
+                matrixBD = matrix_stack([[1, 0], [-defocus_B_D, 1]])
+                return matrixBD @ matrixIB @ matrixII @ matrixAI @ matrixAD
 
             manip.set_Ypropagator(p_builder_Y)
             manip.set_Zpropagator(
@@ -421,23 +447,32 @@ class MirrorBase(base.OpticalObject):
             matrixIA_Y = alm.interface_ROC_AOI_Y(
                 ROC_A_m, n_from=n_I, n_to=n_A, AOI_rad=AOI_rad, neg=True
             )
+            matrixBD_X = matrix_stack([[1, 0], [defocusXB_D, 1]])
+            matrixBD_Y = matrix_stack([[1, 0], [defocusYB_D, 1]])
+            matrixAD_X = matrix_stack([[1, 0], [-defocusXA_D, 1]])
+            matrixAD_Y = matrix_stack([[1, 0], [-defocusYA_D, 1]])
+
 
             def inc_builder(z):
                 return matrix_stack([[1, z], [0, 1]])
 
             manip.set_Xincremental(
                 [
+                    (0, None, matrixBD_X),
                     (0, None, matrixBI_X),
                     (depth_m, inc_builder, matrixII),
                     (0, None, matrixIA_X),
+                    (0, None, matrixAD_X),
                 ]
             )
 
             manip.set_Yincremental(
                 [
+                    (0, None, matrixBD_Y),
                     (0, None, matrixBI_Y),
                     (depth_m, inc_builder, matrixII),
                     (0, None, matrixIA_Y),
+                    (0, None, matrixAD_Y),
                 ]
             )
 
@@ -448,6 +483,8 @@ class MirrorBase(base.OpticalObject):
                 ROC_B_m = p["ROC_B[m]"]
                 AOI_rad = p["AOI[deg]"] * np.pi / 180
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
+                defocus_A_D = p["defocus[D]"] + p["defocusX[D]"]
+                defocus_B_D = p["defocus_B[D]"] + p["defocusX_B[D]"]
 
                 matrixBI = alm.interface_ROC_AOI_X(
                     ROC_B_m, n_from=n_B, n_to=n_I, AOI_rad=AOI_rad
@@ -456,7 +493,9 @@ class MirrorBase(base.OpticalObject):
                 matrixIA = alm.interface_ROC_AOI_X(
                     ROC_A_m, n_from=n_I, n_to=n_A, AOI_rad=AOI_rad, neg=True
                 )
-                return matrixIA @ matrixII @ matrixBI
+                matrixBD = matrix_stack([[1, 0], [defocus_B_D, 1]])
+                matrixAD = matrix_stack([[1, 0], [-defocus_A_D, 1]])
+                return matrixAD @ matrixIA @ matrixII @ matrixBI @ matrixBD
 
             def p_builder_Y(p):
                 ROC_A_m = p["ROC[m]"]
@@ -464,6 +503,8 @@ class MirrorBase(base.OpticalObject):
                 ROC_B_m = p["ROC_B[m]"]
                 AOI_rad = p["AOI[deg]"] * np.pi / 180
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
+                defocus_A_D = p["defocus[D]"] + p["defocusY[D]"]
+                defocus_B_D = p["defocus_B[D]"] + p["defocusY_B[D]"]
 
                 matrixBI = alm.interface_ROC_AOI_Y(
                     ROC_B_m, n_from=n_B, n_to=n_I, AOI_rad=AOI_rad
@@ -472,7 +513,9 @@ class MirrorBase(base.OpticalObject):
                 matrixIA = alm.interface_ROC_AOI_Y(
                     ROC_A_m, n_from=n_I, n_to=n_A, AOI_rad=AOI_rad, neg=True
                 )
-                return matrixIA @ matrixII @ matrixBI
+                matrixBD = matrix_stack([[1, 0], [defocus_B_D, 1]])
+                matrixAD = matrix_stack([[1, 0], [-defocus_A_D, 1]])
+                return matrixAD @ matrixIA @ matrixII @ matrixBI @ matrixBD
 
             manip.set_Xpropagator(p_builder_X)
             manip.set_Ypropagator(p_builder_Y)
@@ -515,7 +558,7 @@ class MirrorBase(base.OpticalObject):
         elif lport_fr_to in [("B!i", "B!o"), ("B1!i", "B2!o"), ("B2!i", "B1!o")]:
             # BB reflection
             # TODO, include astigmatism and defocus for X and Y
-            defocus_D = manip.p["defocus[D]"]
+            defocus_D = manip.p["defocus_B[D]"]
             M_D = matrix_stack([[1, 0], [defocus_D, 1]])
             matrixBI = alm.interface_ROC(ROC_B_m, n_from=n_B, n_to=n_I)
             matrixII = matrix_stack([[1, depth_m], [0, 1]])
@@ -544,7 +587,7 @@ class MirrorBase(base.OpticalObject):
                 ROC_A_m = manip.p["ROC[m]"]
                 depth_m = manip.p["depth[m]"]
                 ROC_B_m = manip.p["ROC_B[m]"]
-                defocus_D = p["defocus[D]"]
+                defocus_D = p["defocus_B[D]"]
                 depth_m = depth_m / np.cos(AOI_rad * n_A / n_I)
 
                 M_D = matrix_stack([[1, 0], [defocus_D, 1]])
