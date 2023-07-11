@@ -23,6 +23,7 @@ from .utils import (
     interface_ROC_AOI_X,
     REFL_ROC_X,
     REFL_ROC_Y,
+    substrate_propagation,
     str_m,
     str_D,
     unit_str,

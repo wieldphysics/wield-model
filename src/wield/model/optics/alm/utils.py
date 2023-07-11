@@ -6,8 +6,23 @@
 # NOTICE: authors should document their contributions in concisely in NOTICE
 # with details inline in source files, comments, and docstrings.
 """
+Utilities for complex beam parameter propagation and string formatting
+
+Note that the ABCD convention used here for beam propagation differs from other references,
+e.g. Siegman. Here complex beam parameters q are propagated by
+
+q2 = (A * q1 + B) / (C * q1 + D)
+
+whereas in Siegman
+
+q2/n2 = (AA * (q1/n1) + BB) / (CC * (q1/n1) + DD)
+
+where n1 and n2 are the indices of refraction of the regions where the two beams are propagating.
+To convert between the two,
+A = AA, B = n1 * BB, C = CC / n2, and D = DD * (n1 / n2)
 """
 import numpy as np
+from scipy.optimize import minimize
 from wield.utilities.np import matrix_stack
 
 
@@ -135,6 +150,20 @@ def str_D(val, d=3, use_c=False, space=True):
 
 
 def interface_ROC(ROC_m, n_from, n_to, neg=False):
+    """
+    ABCD matrix for transmission through a curved surface at normal incidence
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    n_from : float
+        Index of refraction for the incident beam
+    n_to : float
+        Index of refraction for the transmitted beam
+    neg : bool; default: False
+        If True, reverses the sign of the radius of curvature
+    """
     nft = n_from / n_to
     if ROC_m is not None:
         if neg:
@@ -155,6 +184,23 @@ def interface_ROC(ROC_m, n_from, n_to, neg=False):
 
 
 def interface_ROC_AOI_Y(ROC_m, n_from, n_to, AOI_rad, neg=False):
+    """
+    ABCD matrix for transmission through a curved surface at arbitrary angle of incidence in the
+    saggital plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    n_from : float
+        Index of refraction for the incident beam
+    n_to : float
+        Index of refraction for the transmitted beam
+    AOI_rad : float
+        Angle of incidence [rad]
+    neg : bool; default: False
+        If True, reverses the sign of the radius of curvature
+    """
     nft = n_from / n_to
     if ROC_m is not None:
         adj = (1 - (nft * np.sin(AOI_rad)) ** 2) ** 0.5
@@ -176,6 +222,23 @@ def interface_ROC_AOI_Y(ROC_m, n_from, n_to, AOI_rad, neg=False):
 
 
 def interface_ROC_AOI_X(ROC_m, n_from, n_to, AOI_rad, neg=False):
+    """
+    ABCD matrix for transmission through a curved surface at arbitrary angle of incidence in the
+    tangential plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    n_from : float
+        Index of refraction for the incident beam
+    n_to : float
+        Index of refraction for the transmitted beam
+    AOI_rad : float
+        Angle of incidence [rad]
+    neg : bool; default: False
+        If True, reverses the sign of the radius of curvature
+    """
     nft = n_from / n_to
     if ROC_m is not None:
         adj = (1 - (nft * np.sin(AOI_rad)) ** 2) ** 0.5
@@ -200,6 +263,17 @@ def interface_ROC_AOI_X(ROC_m, n_from, n_to, AOI_rad, neg=False):
 
 
 def REFL_ROC_Y(ROC_m, AOI_rad):
+    """
+    ABCD matrix for reflection from a curved surface at arbitrary angle of incidence in the
+    saggital plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    AOI_rad : float
+        Angle of incidence [rad]
+    """
     if ROC_m is not None:
         return matrix_stack(
             [
@@ -217,6 +291,17 @@ def REFL_ROC_Y(ROC_m, AOI_rad):
 
 
 def REFL_ROC_X(ROC_m, AOI_rad):
+    """
+    ABCD matrix for reflection from a curved surface at arbitrary angle of incidence in the
+    tangential plane
+
+    Parameters
+    ----------
+    ROC_m : float
+        Radius of curvature of the surface [m]
+    AOI_rad : float
+        Angle of incidence [rad]
+    """
     if ROC_m is not None:
         return matrix_stack(
             [
@@ -231,3 +316,63 @@ def REFL_ROC_X(ROC_m, AOI_rad):
                 [0, 1],
             ]
         )
+
+
+def substrate_propagation(depth_m, n0=1, defocus_D=0, exact=False):
+    """
+    ABCD matrix for propagation through a substrate
+
+    The substrate may have a quadratic lens which is modeled as a Gaussian duct.
+
+    Parameters
+    ----------
+    depth_m : float
+        Length of propagation [m]
+    n0 : float; default: 1
+        Index of refraction of the substrate
+    defocus_D : float; default 0
+        Defocus of the substrate lens [D]
+    exact : bool; default: False
+        If False, use a weak lens approximation to solve for the Gaussian duct parameters from
+        the given substrate lens. If True, numerically solve for the parameters.
+    """
+    # just a propagation if there's no lens
+    if defocus_D == 0:
+        return matrix_stack([
+            [1, depth_m],
+            [0, 1],
+        ])
+
+    # The defocus for a positive lens is n0 * gamma * tan(gamma * depth)
+    # The defocus for a negative lens is -n0 * gamma * tanh(gamma * depth)
+    # See http://rezonator.orion-project.org/help/calc_grin.html
+    # Weak lens approximation
+    gamma0 = np.sqrt(np.abs(defocus_D) / (n0 * depth_m))
+
+    if defocus_D > 0:
+        if exact:
+            res = minimize(
+                lambda x: np.abs(n0 * x * np.tan(x * depth_m) / defocus_D - 1),
+                gamma0,
+            )
+            gamma = res['x'][0]
+        else:
+            gamma = gamma0
+        return matrix_stack([
+            [np.cos(gamma * depth_m), np.sin(gamma * depth_m) / gamma],
+            [-gamma * np.sin(gamma * depth_m), np.cos(gamma * depth_m)],
+        ])
+
+    else:
+        if exact:
+            res = minimize(
+                lambda x: np.abs(n0 * x * np.tanh(x * depth_m) / defocus_D + 1),
+                gamma0,
+            )
+            gamma = res['x'][0]
+        else:
+            gamma = gamma0
+        return matrix_stack([
+            [np.cosh(gamma * depth_m), np.sinh(gamma * depth_m) / gamma],
+            [-gamma * np.sinh(gamma * depth_m), np.cosh(gamma * depth_m)],
+        ])
