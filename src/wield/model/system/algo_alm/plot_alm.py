@@ -323,13 +323,13 @@ class OverlapperPlotter(object):
         axB.iROC.minorticks_on()
         axB.Gouy.minorticks_on()
 
-        axB.width.grid(b=True, which="minor", linewidth=0.5, ls=":")
-        axB.iROC.grid(b=True, which="minor", linewidth=0.5, ls=":")
-        axB.Gouy.grid(b=True, which="minor", linewidth=0.5, ls=":")
+        axB.width.grid(visible=True, which="minor", linewidth=0.5, ls=":")
+        axB.iROC.grid(visible=True, which="minor", linewidth=0.5, ls=":")
+        axB.Gouy.grid(visible=True, which="minor", linewidth=0.5, ls=":")
 
-        axB.width.grid(b=True, which="major", linewidth=1)
-        axB.iROC.grid(b=True, which="major", linewidth=1)
-        axB.Gouy.grid(b=True, which="major", linewidth=1)
+        axB.width.grid(visible=True, which="major", linewidth=1)
+        axB.iROC.grid(visible=True, which="major", linewidth=1)
+        axB.Gouy.grid(visible=True, which="major", linewidth=1)
 
         if fname is not None:
             axB.save(fname)
@@ -705,8 +705,8 @@ class OverlapperPlotter(object):
                 axB = mplfigB(Ncols=2, size_in=(12, 5))
             axQ = axB.ax0
             axLG = axB.ax1
-            axQ.grid(b=True, alpha=0.2)
-            axLG.grid(b=True, alpha=0.2)
+            axQ.grid(visible=True, alpha=0.2)
+            axLG.grid(visible=True, alpha=0.2)
 
         calc = overlapper.compile_overlap_calculation(loc="to")
         pbg_orig = overlapper.pbg
@@ -1060,7 +1060,7 @@ class OverlapperPlotter(object):
                 axQ.set_title("Beam Parameter Plot [X]")
             else:
                 axQ.set_title("Beam Parameter Plot [Y]")
-            axQ.grid(b=True, alpha=0.2)
+            axQ.grid(visible=True, alpha=0.2)
         if axLG is not None:
             axLG.set_ylabel("LG1 imaginary")
             axLG.set_xlabel("LG1 real")
@@ -1068,7 +1068,7 @@ class OverlapperPlotter(object):
                 axLG.set_title("Rel. mismatch LG0->LG1 (X parameter coupling)")
             else:
                 axLG.set_title("Rel. mismatch LG0->LG1 (Y parameter coupling)")
-            axLG.grid(b=True, alpha=0.2)
+            axLG.grid(visible=True, alpha=0.2)
 
         if fname is not None:
             axB.save(fname)

@@ -42,5 +42,7 @@ substrates = dict(
     PPKTP={
         FrequencyKey({"Nd1064": 1}): 1.8302,
         FrequencyKey({"Nd1064": 2}): 1.7779,
+        FrequencyKey({"1550": 1}): 1.7282,
+        FrequencyKey({"1550": 2}): 1.7497,
     },
 )
