@@ -1,0 +1,12 @@
+# this requirements file should be a subset of the main requirements.txt, but uses only conda package names.
+matplotlib
+numpy
+pexpect
+pytest
+pytest-watch
+pytest-html
+scipy
+tqdm
+networkx
+pygraphviz
+
