@@ -293,6 +293,7 @@ class ModeMatchingLinkageAlgorithm(object):
             )
             obj_fr.visit_mode_matching_transport(manip)
 
+            # print('XSHIFT_pre', len(Xprop), len(Xinc))
             Xprop_ol2idx[oLp_fr] = len(Xprop)
             Yprop_ol2idx[oLp_fr] = len(Yprop)
             Zprop_ol2idx[oLp_fr] = len(Zprop_scales)
@@ -324,9 +325,11 @@ class ModeMatchingLinkageAlgorithm(object):
             Zprop_ol2idx[oLp_to] = len(Zprop_scales)
             Xinc_ol2idx[oLp_to] = len(Xinc)
             Yinc_ol2idx[oLp_to] = len(Yinc)
+            # print('XSHIFT_post', len(Xprop), len(Xinc))
 
             if shifts_use:
                 for (obj, name), shift in manip._Xshifts.items():
+                    # print('XSHIFT', obj, name, shift, len(Xprop), len(Xinc))
                     Xshifts.append(Bunch(
                         idx_prop=len(Xprop),
                         idx_inc=len(Xinc),
@@ -473,7 +476,7 @@ class ModeMatchingLinkageAlgorithm(object):
             # reverse sequence
             link_seq = link_seq[::-1]
         if not link_seq:
-            print("LSEQ ", link_seq, oLp_set_seq)
+            # print("LSEQ ", link_seq, oLp_set_seq)
             assert False
         return link_seq
 

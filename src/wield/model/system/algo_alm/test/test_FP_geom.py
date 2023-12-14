@@ -17,7 +17,7 @@ from wield import model
 from wield.model.system import algo_phys
 
 
-from wield.pytest import tpath_join, dprint, plot  # noqa: F401
+from wield.pytest import tjoin, dprint, plot  # noqa: F401
 
 def linear_cavity(sys=None):
     if sys is None:
@@ -57,7 +57,7 @@ def linear_cavity(sys=None):
 
     return sys
 
-def T_linear_cavity_view(tpath_join, algo_log, plot, dprint):
+def T_linear_cavity_view(algo_log, plot):
     sys = model.system1064()
     sys["cavity/"] = linear_cavity()
     pa = algo_phys.PhysicsAlgorithm(sys, log=algo_log)
@@ -103,7 +103,7 @@ def T_linear_cavity_view(tpath_join, algo_log, plot, dprint):
         cavB = overlapper['cavity/cav']
         #print(cavB.shiftsXend)
         plB = overlapper.plot(
-            tpath_join("linearM1.pdf"),
+            tjoin("linearM1.pdf"),
             # reverse = True,
             # self_overlap = True,
         )
@@ -125,7 +125,7 @@ def T_linear_cavity_view(tpath_join, algo_log, plot, dprint):
         cavB = overlapper['cavity/cav']
         #print(cavB.shiftsXend)
         plB = overlapper.plot(
-            tpath_join("linearM2.pdf"),
+            tjoin("linearM2.pdf"),
             # reverse = True,
             # self_overlap = True,
         )

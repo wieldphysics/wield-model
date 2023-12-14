@@ -187,10 +187,12 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         target_oP = self.pbg.referred_vtup(target_name)
         # print(oP)
         cav_path = self.cavity_targets[target_oP]
+        # print("ol", ol)
         idx = cav_path.index(ol)
         # rotate the path to the given target start, and add the final node back
         # to form the full loop
         path = cav_path[idx:] + cav_path[:idx] + [cav_path[idx]]
+        # print("PATH: ", path)
 
         trans = self._path_transporters(path, Wk, shifts_use=shifts_use)
 
@@ -204,6 +206,7 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
         cav_shiftX = {}
         for shift_key, shift in trans.X.shifts_out_referred.items():
             shiftX = -np.linalg.inv(matX - eye) @ shift
+            # print("SHIFTY: ", shift_key, shift, shiftX)
             cav_shiftX[shift_key] = shiftX
         cav_shiftY = {}
         for shift_key, shift in trans.Y.shifts_out_referred.items():
@@ -225,8 +228,8 @@ class ModeMatchingAlgorithm(algo_mm_linkages.ModeMatchingLinkageAlgorithm):
                         mat_full_tot = mat @ mat_full_tot
                     if np.any(mat_full != np.eye(2)):
                         print(mat_full)
-            print("Total RT Matrix")
-            print(mat_full_tot)
+            # print("Total RT Matrix")
+            # print(mat_full_tot)
             raise RuntimeError("Cavity {} is not stable".format(target_name))
         qX = alm.ComplexBeamParam(qX, wavelength_m=self.fs.wavelength_map[Wk])
         qY = alm.ComplexBeamParam(qY, wavelength_m=self.fs.wavelength_map[Wk])

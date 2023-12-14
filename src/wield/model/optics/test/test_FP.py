@@ -24,7 +24,7 @@ from wield.model.system import algo_graphs
 from wield.model.system import algo_log
 
 from wield.pytest.fixtures import (
-    tpath_join,
+    tjoin,
     plot,
 )
 
@@ -74,7 +74,7 @@ def test_FP_DC(algo_log):
 
 
 # @pytest.mark.skip()
-def test_FP_DC_scan(plot, tpath_join, algo_log):
+def test_FP_DC_scan(plot, algo_log):
     log = algo_log.LoggingAlgorithm(
         log_level=9,
         filters={
@@ -111,12 +111,12 @@ def test_FP_DC_scan(plot, tpath_join, algo_log):
         # axB.ax3.matshow(ikm_dense != 0)
         from os import path
 
-        axB.save(tpath_join("testFP_PDH.pdf"))
+        axB.save(tjoin("testFP_PDH.pdf"))
     else:
         print("use --plot to plot")
 
 
-def test_FP_AC(plot, tpath_join):
+def test_FP_AC(plot):
     log = algo_log.LoggingAlgorithm(
         log_level=9,
         filters={
@@ -159,7 +159,7 @@ def test_FP_AC(plot, tpath_join):
             np.angle(pa.ac("M1+Dl", "REFL+Wpd", demod="RF9", quadrature="Q"), deg=True),
         )
         # axB.ax3.matshow(ikm_dense != 0)
-        axB.save(tpath_join("testFP_AC.pdf"))
+        axB.save(tjoin("testFP_AC.pdf"))
     else:
         print("use --plot to plot")
 

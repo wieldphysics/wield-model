@@ -94,6 +94,9 @@ class MMTransporter(object):
                 M = self.inc_build_mat[sB.idx_inc]
                 shift = self.inc_build_mat[-1] @ np.linalg.inv(M) @ sB.shift
                 shift_prev = _shifts_out_referred.setdefault((sB.obj, sB.name), shift)
+                # print("SHIFT_TEST: ", (sB.obj, sB.name), sB.shift, sB.idx_inc, shift)
+                # print("M", M)
+                # print("M2", np.linalg.inv(np.eye(2) - self.inc_build_mat[-1]) @ shift)
                 if shift_prev is not shift:
                     _shifts_out_referred[(sB.obj, sB.name)] = shift_prev + shift
             self._shifts_out_referred = _shifts_out_referred

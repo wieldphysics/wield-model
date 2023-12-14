@@ -29,7 +29,7 @@ class SimulationObject(ParameterObject):
         """
         from .. import optics
 
-        last_object = None
+        last_objstr = None
         last_distance = None
         bond_list = []
 
@@ -37,7 +37,7 @@ class SimulationObject(ParameterObject):
             # doing some shitparsing here...
             nonlocal last_distance
             nonlocal bond_list
-            nonlocal last_object
+            nonlocal last_objstr
 
             item = arg["inj"]
             item = item.strip()
@@ -49,14 +49,18 @@ class SimulationObject(ParameterObject):
             objname = m.group(1)
             if "/" in objname:
                 raise NotImplementedError("Cannot currently space_bond nested elements")
+                objstr = objname.replace('/', '-')
+            else:
+                objstr = objname
+            
             if last_distance is None:
                 raise RuntimeError(
                     "element injection (via dictionaries) only available if a distance is specified for previous element"
                 )
             else:
-                if last_object is None:
+                if last_objstr is None:
                     raise RuntimeError("No previous object to connect space")
-                space_name = "{}_{}/".format(last_object, objname)
+                space_name = "{}_{}/".format(last_objstr, objstr)
 
                 dist_fr = arg.get("fr", None)
                 dist_to = arg.get("to", None)
@@ -77,14 +81,14 @@ class SimulationObject(ParameterObject):
                 # and inject the bond as well
                 bond_list.append(space_name + "+A-t")
                 bond_list.append(item)
-            last_object = objname
+            last_objstr = objstr
             return
 
         def str_argument_add(arg):
             # doing some shitparsing here...
             nonlocal last_distance
             nonlocal bond_list
-            nonlocal last_object
+            nonlocal last_objstr
             spl = arg.split("|")
             if len(spl) > 1:
                 for a in spl:
@@ -99,13 +103,15 @@ class SimulationObject(ParameterObject):
                 )
             objname = m.group(1)
             if "/" in objname:
-                raise NotImplementedError("Cannot currently space_bond nested elements")
+                objstr = objname.replace('/', '-')
+            else:
+                objstr = objname
             if last_distance is None:
                 bond_list.append(arg)
             else:
-                if last_object is None:
+                if last_objstr is None:
                     raise RuntimeError("No previous object to connect space")
-                space_name = "{}_{}/".format(last_object, objname)
+                space_name = "{}_{}/".format(last_objstr, objstr)
 
                 Ssys = self[space_name] = optics.Space()
                 Ssys["length[m]"] = last_distance
@@ -114,7 +120,7 @@ class SimulationObject(ParameterObject):
                 # and inject the bond as well
                 bond_list.append(space_name + "+A-t")
                 bond_list.append(arg)
-            last_object = objname
+            last_objstr = objstr
             last_distance = None
             return
 

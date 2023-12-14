@@ -51,12 +51,13 @@ class ModeMatchingOverlapper(object):
 
         def setup_refer_to_start(tB, direction):
             tB_new = Bunch()
-            tB_new.type = tB.tspecB
+            tB_new.type = tB.tspecB.type
             if tB.inv_start:
                 tB_new.targB = self.mm._target_complete(tB.tspecB, ol=tB.oLp_path[-1], shifts_use=shifts_use)
             else:
                 tB_new.targB = self.mm._target_complete(tB.tspecB, ol=tB.oLp_path[0], shifts_use=shifts_use)
 
+            # print("SHIFT?: ", tB.inv_start, tB_new.type)
             if not tB.inv_start and tB_new.type == 'cavity':
                 shiftsX = tB_new.targB.cav_shiftX
                 shiftsY = tB_new.targB.cav_shiftY
@@ -68,6 +69,8 @@ class ModeMatchingOverlapper(object):
             tB_new.trans = self.mm._path_transporters(tB.oLp_path, Wk=Wk, shifts_use=shifts_use)
             matXfr = tB_new.trans.X.full_trip_mat
             matYfr = tB_new.trans.Y.full_trip_mat
+
+            # print("SHIFTS? ", shiftsX)
             if tB.inv_start:
                 matXfr = np.linalg.inv(matXfr)
                 matYfr = np.linalg.inv(matYfr)
@@ -197,7 +200,7 @@ class ModeMatchingOverlapper(object):
     def object_z(self, ref, obj=None):
         # TODO
         lset = self.mm.bg.rAp2oLp_set(ref, obj=obj)
-        print("lset", lset)
+        # print("lset", lset)
         # TODO, specify X or Y or check that it doesn't matter
         d = self.trans_center.X.ol2z(lset)
         return min(d.values())

@@ -51,6 +51,9 @@ class MirrorBase(base.OpticalObject):
                 "ROC_B[m]",
                 "depth[m]",
                 "AOI[deg]",
+                "defocus[D]",
+                "defocusX[D]",
+                "defocusY[D]",
             ]
         )
 
@@ -617,7 +620,7 @@ class Mirror(MirrorBase):
             def param_many(R, T, L):
                 if R is None:
                     if T is None:
-                        raise RuntimeError("Must specify at least R or T")
+                        raise RuntimeError("Must specify at least R or T for {}".format(self))
                     if L is None:
                         L = 0
                     R = 1 - T - L
