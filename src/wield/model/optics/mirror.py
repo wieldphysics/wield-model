@@ -620,6 +620,7 @@ class Mirror(MirrorBase):
             def param_many(R, T, L):
                 if R is None:
                     if T is None:
+                        return None, None, None
                         raise RuntimeError("Must specify at least R or T for {}".format(self))
                     if L is None:
                         L = 0
